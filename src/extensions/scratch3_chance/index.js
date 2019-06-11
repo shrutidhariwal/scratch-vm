@@ -18,6 +18,23 @@ class ChanceExtension {
 
             blocks: [
                 {
+                    opcode: 'makeADice',
+
+                    blockType: BlockType.REPORTER,
+
+                    text: 'Dice with properties [DISTRIBUTION]',
+
+                    arguments: {
+                        DISTRIBUTION: {
+                            type: ArgumentType.SLIDER,
+                            defaultValue: [20, 20, 20, 20, 20]
+                        }
+                    }
+
+                    
+                },
+
+                {
                     opcode: 'probFork',
 
                     blockType: BlockType.CONDITIONAL,
@@ -60,6 +77,8 @@ class ChanceExtension {
 
 
                 }
+
+                
             ]
         };
     }
@@ -67,7 +86,6 @@ class ChanceExtension {
     probFork (args, util) {
         
         const probability = Cast.toNumber(args.NUM) / Cast.toNumber(args.DEN);
-        console.log(util);
         if (random() < probability) {
             util.startBranch(1, false);
         } else {
@@ -77,9 +95,11 @@ class ChanceExtension {
 
     dice (args) {
         const numSides = Cast.toNumber(args.NUM);
-
-
         return randomInt(1, numSides);
+    }
+
+    makeADice (args) {
+        return args;
     }
 }
 module.exports = ChanceExtension;

@@ -16,7 +16,6 @@ const maybeFormatMessage = require('../util/maybe-format-message');
 const StageLayering = require('./stage-layering');
 const Variable = require('./variable');
 const xmlEscape = require('../util/xml-escape');
-
 // Virtual I/O devices.
 const Clock = require('../io/clock');
 const Cloud = require('../io/cloud');
@@ -72,6 +71,10 @@ const ArgumentTypeMap = (() => {
     map[ArgumentType.NOTE] = {
         shadowType: 'note',
         fieldType: 'NOTE'
+    };
+    map[ArgumentType.SLIDER] = {
+        shadowType: 'slider',
+        fieldType: 'SLIDER'
     };
     return map;
 })();
