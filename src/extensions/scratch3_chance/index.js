@@ -18,6 +18,13 @@ class ChanceExtension {
 
             blocks: [
                 {
+                    opcode: 'diceMaker',
+                    blockType: BlockType.BUTTON,
+                    text: 'Make a Dice',
+                    func: 'MAKE_A_DICE'
+
+                },
+                {   // Block for a dice that has adjustable distribution.
                     opcode: 'makeADice',
 
                     blockType: BlockType.REPORTER,
@@ -27,7 +34,7 @@ class ChanceExtension {
                     arguments: {
                         DISTRIBUTION: {
                             type: ArgumentType.SLIDER,
-                            defaultValue: [20, 20, 20, 20, 20]
+                            defaultValue: '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666'
                         }
                     }
 
@@ -77,8 +84,6 @@ class ChanceExtension {
 
 
                 }
-
-                
             ]
         };
     }
@@ -99,7 +104,25 @@ class ChanceExtension {
     }
 
     makeADice (args) {
-        return args;
+        const sliders = args.DISTRIBUTION.split(',');
+        
+        // Convert all the slider array elements from strings into floats.
+        for (let i = 0; i < sliders.length; i++) sliders[i] = +sliders[i];
+        
+        let sliderSums = [sliders[0]];
+        for (let i = 1; i < sliders.length; i++) {
+            sliderSums.push(sliderSums[sliderSums.length - 1] + sliders[i]);
+        }
+
+        
+        const randomNumber = random() * 100.0;
+        for (let i = 0; i < sliders.length; i++) {
+            if (randomNumber <= sliderSums[i]) {
+                return i + 1;
+            }
+        }
+
+
     }
 }
 module.exports = ChanceExtension;
