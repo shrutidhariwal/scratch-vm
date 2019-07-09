@@ -11,6 +11,53 @@ class ChanceExtension {
         this.dice1Value = 1;
         this.dice1Distribution = '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666';
         this.dice2Distribution = '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666';
+        this.setValue = function (currentDist, side, chance) {
+            if (chance >= 100) {
+                chance = 100.0;
+            } else if (chance <= 0) {
+                chance = 0.0;
+            }
+            let sliders = JSON.parse("[" + currentDist + "]");
+            let difference;
+            side--;
+
+            // If the current dice does not have that many sides as the user is requesting:
+            if (sliders.length <= side) {
+
+                difference = -chance / 1.0;
+                // Add as many 0's to the slider as needed.
+                for (let i = 0; i < (side - sliders.length + 2); i++) {
+                    sliders.push(0.0);
+                }
+                // If the distribution array is already long enough:
+            } else {
+                difference = sliders[side] - chance;
+            }
+            // Start editing the distribution values.
+            let sumOfRest = 0;
+            for (let i = 0; i < sliders.length; i++) {
+                if (i !== side) {
+                    sumOfRest += sliders[i];
+                }
+            }
+            for (let i = 0; i < sliders.length; i++) {
+                if (i !== side) {
+                    if (sumOfRest === 0) {
+                        sliders[i] = sliders[i] + (difference / (sliders.length - 1));
+
+                    } else {
+                        sliders[i] = sliders[i] + (difference * sliders[i] / sumOfRest);
+                        if (sliders[i] < 0) {
+                            sliders[i] = 0;
+                        }
+                    }
+                }
+            }
+            
+
+            sliders[side] = chance;
+            return sliders.toString();
+        };
     }
 
     newMethod() {
@@ -98,6 +145,28 @@ class ChanceExtension {
                             defaultValue: 10
                         }
                     }
+                },
+                {
+                    opcode: 'changeChance',
+                    blockType: BlockType.COMMAND,
+                    text: 'change chance of [DICE] [SIDE] by [CHANCE]',
+                    arguments: {
+                        DICE: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'dice1',
+                            menu: 'diceMenu'
+                        },
+                        SIDE: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 1,
+                            menu: 'sideMenu'
+                        },
+                        CHANCE: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 10
+                        }
+                    }
+
                 },
                 { // Block for a dice that has adjustable distribution and no stored value. It is a reporter and not a variable.
                     opcode: 'makeADice',
@@ -286,6 +355,7 @@ class ChanceExtension {
 
     // Randomly reassign the value of the selected dice according to its distribution.
     rollDice (args) {
+        this.helloWorld();
         const dice = args.DICE;
         let distribution;
         if (dice === 'dice1') {
@@ -326,59 +396,48 @@ class ChanceExtension {
 
     setChance (args) {
         const dice = args.DICE;
-        let side = args.SIDE;
+        const side = Cast.toNumber(args.SIDE);
         const chance = Cast.toNumber(args.CHANCE);
-        let difference;
         let currentDist;
         if (dice === 'dice1') {
             currentDist = this.dice1Distribution;
         } else {
             currentDist = this.dice2Distribution;
         }
-        // Convert the string distribution to an array.
-        let sliders = JSON.parse("[" + currentDist + "]");
-        side--;
+        const final = this.setValue(currentDist, side, chance);
 
-        // If the current dice does not have that many sides as the user is requesting:
-        if (sliders.length <= side) {
-            
-            difference = -chance / 1.0;
-            // Add as many 0's to the slider as needed.
-            for (let i = 0; i < (side - sliders.length + 1); i++) {
-                sliders.push(0.0);
-            }
-        // If the distribution array is already long enough:
-        } else {
-            difference = sliders[side] - chance;
-        }
-        // Start editing the distribution values.
-        let sumOfRest = 0;
-        for (let i = 0; i < sliders.length; i++){
-            if (i !== side) {
-                sumOfRest += sliders[i];
-            }
-        }
-        for (let i = 0; i < sliders.length; i++){
-            if (i !== side) {
-                if (sumOfRest === 0) {
-                    sliders[i] = sliders[i] + (difference / (sliders.length - 1));
-
-                } else {
-                    sliders[i] = sliders[i] + (difference * sliders[i] / sumOfRest);
-                    if (sliders[i] < 0) {
-                        sliders[i] = 0;
-                    }
-                }
-            }
-        }
-
-        sliders[side] = chance;
         if (dice === 'dice1') {
-            this.dice1Distribution = sliders.toString();
+            this.dice1Distribution = final;
         } else {
-            this.dice2Distribution = sliders.toString();
+            this.dice2Distribution = final;
         }
     }
 
+    changeChance (args) {
+        const dice = args.DICE;
+        const side = Cast.toNumber(args.SIDE);
+        let chance = Cast.toNumber(args.CHANCE);
+        let currentDist;
+        if (dice === 'dice1') {
+            currentDist = this.dice1Distribution;
+        } else {
+            currentDist = this.dice2Distribution;
+        }
+        const sliders = JSON.parse('[' + currentDist + ']');
+        let currentValue;
+        if (side - 1 < sliders.length) {
+            currentValue = sliders[side - 1];
+        } else {
+            currentValue = 0.0;
+        }
+        
+        chance += currentValue;
+        const final = this.setValue(currentDist, side, chance);
+        if (dice === 'dice1'){
+            this.dice1Distribution = final;
+        } else {
+            this.dice2Distribution = final;
+        }
+    }
 }
 module.exports = ChanceExtension;
