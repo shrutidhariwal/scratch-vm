@@ -355,7 +355,6 @@ class ChanceExtension {
 
     // Randomly reassign the value of the selected dice according to its distribution.
     rollDice (args) {
-        this.helloWorld();
         const dice = args.DICE;
         let distribution;
         if (dice === 'dice1') {
