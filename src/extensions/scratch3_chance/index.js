@@ -39,6 +39,16 @@ class ChanceExtension {
                     text: 'Dice 2'
                 },
                 {
+                    opcode: 'dice1Dist',
+                    blockType: BlockType.REPORTER,
+                    text: 'Dice 1 Sides'
+                },
+                {
+                    opcode: 'dice2Dist',
+                    blockType: BlockType.REPORTER,
+                    text: 'Dice 2 Sides'
+                },
+                {
                     opcode: 'rollDice',
                     blockType: BlockType.COMMAND,
                     text: 'roll [DICE]',
@@ -258,6 +268,22 @@ class ChanceExtension {
         return this.dice2Value;
     }
 
+    dice1Dist () {
+        let sliders = JSON.parse('[' + this.dice1Distribution + ']');
+        for (let i = 0; i < sliders.length; i++) {
+            sliders[i] = Math.round(sliders[i]);
+        }
+        return sliders.toString();
+    }
+
+    dice2Dist () {
+        let sliders = JSON.parse('[' + this.dice2Distribution + ']');
+        for (let i = 0; i < sliders.length; i++) {
+            sliders[i] = Math.round(sliders[i]);
+        }
+        return sliders.toString();
+    }
+
     // Randomly reassign the value of the selected dice according to its distribution.
     rollDice (args) {
         const dice = args.DICE;
@@ -268,10 +294,7 @@ class ChanceExtension {
             distribution = this.dice2Distribution;
         }
         
-        const sliders = distribution.split(',');
-        
-        // Convert all the slider array elements from strings into floats.
-        for (let i = 0; i < sliders.length; i++) sliders[i] = +sliders[i];
+        let sliders = JSON.parse("[" + distribution + "]");
         let newValue;
         const sliderSums = [sliders[0]];
         for (let i = 1; i < sliders.length; i++) {
@@ -285,13 +308,10 @@ class ChanceExtension {
             }
         }
         if (dice === 'dice1') {
-            
             this.dice1Value = newValue;
         } else {
             this.dice2Value = newValue;
         }
-
-     
     }
     // Change the distribution of a dice.
     setDistribution (args) {
@@ -353,7 +373,6 @@ class ChanceExtension {
         }
 
         sliders[side] = chance;
-        console.log(sliders);
         if (dice === 'dice1') {
             this.dice1Distribution = sliders.toString();
         } else {
