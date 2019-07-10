@@ -168,6 +168,80 @@ class ChanceExtension {
                     }
 
                 },
+                {
+                    opcode: 'chanceOfReporter',
+                    blockType: BlockType.REPORTER,
+                    text: 'chance of [DICE] [SIDE]',
+                    arguments: {
+                        DICE: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'dice1',
+                            menu: 'diceMenu'
+                        },
+                        SIDE: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 1,
+                            menu: 'sideMenu'
+                        }
+                    }
+
+                },
+                {
+                    opcode: 'rollsHat',
+                    blockType: BlockType.HAT,
+                    text: 'when [DICE] rolls [SIDE]',
+                    arguments: {
+                        DICE: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'dice1',
+                            menu: 'diceMenu'
+                        },
+                        SIDE: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 1,
+                            menu: 'sideMenu'
+                        }
+                    }
+                },
+                {
+                    opcode: 'chanceHat',
+                    blockType: BlockType.HAT,
+                    text: 'when chance of [DICE] [SIDE] > [CHANCE]',
+                    arguments: {
+                        DICE: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'dice1',
+                            menu: 'diceMenu'
+                        },
+                        SIDE: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 1,
+                            menu: 'sideMenu'
+                        },
+                        CHANCE: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 10
+                        }
+                    }
+                },
+                {
+                    opcode: 'whenDiceBool',
+                    blockType: BlockType.BOOLEAN,
+                    text: '[DICE] is [SIDE]',
+                    arguments: {
+                        DICE: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'dice1',
+                            menu: 'diceMenu'
+                        },
+                        SIDE: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 1,
+                            menu: 'sideMenu'
+                        }
+                    }
+                },
+                
                 { // Block for a dice that has adjustable distribution and no stored value. It is a reporter and not a variable.
                     opcode: 'makeADice',
 
@@ -437,6 +511,79 @@ class ChanceExtension {
         } else {
             this.dice2Distribution = final;
         }
+    }
+
+    chanceOfReporter (args) {
+        const dice = args.DICE;
+        let side = Cast.toNumber(args.SIDE);
+        let currentDist;
+        side--;
+        if (dice === 'dice1') {
+            currentDist = this.dice1Distribution;
+        } else {
+            currentDist = this.dice2Distribution;
+        }
+        const sliders = JSON.parse('[' + currentDist + ']');
+        if (side < sliders.length) {
+            return Math.round(sliders[side]);
+        }
+        return 0;
+    }
+
+    rollsHat (args) {
+        const dice = args.DICE;
+        const side = Cast.toNumber(args.SIDE);
+        let currentValue;
+        if (dice === 'dice1') {
+            currentValue = this.dice1Value;
+        } else {
+            currentValue = this.dice2Value;
+        }
+        if (currentValue === side) {
+            return true;
+        }
+        return false;
+    }
+
+    chanceHat (args) {
+        const dice = args.DICE;
+        let side = Cast.toNumber(args.SIDE);
+        const chance = Cast.toNumber(args.CHANCE);
+        side--;
+        let currentDist;
+        if (dice === 'dice1') {
+            currentDist = this.dice1Distribution;
+        } else {
+            currentDist = this.dice2Distribution;
+        }
+        const sliders = JSON.parse('[' + currentDist + ']');
+        let currentValue;
+        if (side < sliders.length) {
+            currentValue = sliders[side];
+        } else {
+            currentValue = 0;
+        }
+        if (currentValue > chance) {
+            return true;
+        }
+        return false;
+
+    }
+
+    whenDiceBool (args) {
+        const dice = args.DICE;
+        const side = Cast.toNumber(args.SIDE);
+        let currentValue;
+        if (dice === 'dice1') {
+            currentValue = this.dice1Value;
+        } else {
+            currentValue = this.dice2Value;
+        }
+        if (currentValue === side) {
+            return true;
+        }
+        return false;
+
     }
 }
 module.exports = ChanceExtension;
