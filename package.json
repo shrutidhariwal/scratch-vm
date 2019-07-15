@@ -40,7 +40,6 @@
     "htmlparser2": "3.10.0",
     "immutable": "3.8.1",
     "jszip": "^3.1.5",
-    "math-random": "^1.0.4",
     "minilog": "3.1.0",
     "nets": "3.2.0",
     "scratch-parser": "5.0.0",

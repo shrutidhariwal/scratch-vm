@@ -36,12 +36,7 @@ const ArgumentType = {
     /**
      * MIDI note number with note picker (piano) field
      */
-    NOTE: 'note',
-
-    /**
-     * Sliding bars represented by a list of numbers that add up to 100.
-     */
-    SLIDER: 'slider'
+    NOTE: 'note'
 };
 
 module.exports = ArgumentType;
