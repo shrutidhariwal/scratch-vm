@@ -76,6 +76,10 @@ const ArgumentTypeMap = (() => {
         shadowType: 'note',
         fieldType: 'NOTE'
     };
+    map[ArgumentType.SLIDER] = {
+        shadowType: 'slider',
+        fieldType: 'SLIDER'
+    };
     return map;
 })();
 
