@@ -120,6 +120,124 @@ class SomeBlocks {
 }
 ```
 
+### Defining a Menu
+
+To display a drop-down menu for a block argument, specify the `menu` property of that argument and a matching item in
+the `menus` section of your extension's definition:
+
+```js
+return {
+    // ...
+    blocks: [
+        {
+            // ...
+            arguments: {
+                FOO: {
+                    type: ArgumentType.NUMBER,
+                    menu: 'fooMenu'
+                }
+            }
+        }
+    ],
+    menus: {
+        fooMenu: {
+            items: ['a', 'b', 'c']
+        }
+    }
+}
+```
+
+The items in a menu may be specified with an array or with the name of a function which returns an array. The two
+simplest forms for menu definitions are:
+
+```js
+getInfo () {
+    return {
+        menus: {
+            staticMenu: ['static 1', 'static 2', 'static 3'],
+            dynamicMenu: 'getDynamicMenuItems'
+        }
+    };
+}
+// this member function will be called each time the menu opens
+getDynamicMenuItems () {
+    return ['dynamic 1', 'dynamic 2', 'dynamic 3'];
+}
+```
+
+The examples above are shorthand for these equivalent definitions:
+
+```js
+getInfo () {
+    return {
+        menus: {
+            staticMenu: {
+                items: ['static 1', 'static 2', 'static 3']
+            },
+            dynamicMenu: {
+                items: 'getDynamicMenuItems'
+            }
+        }
+    };
+}
+// this member function will be called each time the menu opens
+getDynamicMenuItems () {
+    return ['dynamic 1', 'dynamic 2', 'dynamic 3'];
+}
+```
+
+If a menu item needs a label that doesn't match its value -- for example, if the label needs to be displayed in the
+user's language but the value needs to stay constant -- the menu item may be an object instead of a string. This works
+for both static and dynamic menu items:
+
+```js
+menus: {
+    staticMenu: [
+        {
+            text: formatMessage(/* ... */),
+            value: 42
+        }
+    ]
+}
+```
+
+#### Accepting reporters ("droppable" menus)
+
+By default it is not possible to specify the value of a dropdown menu by inserting a reporter block. While we
+encourage extension authors to make their menus accept reporters when possible, doing so requires careful
+consideration to avoid confusion and frustration on the part of those using the extension.
+
+A few of these considerations include:
+
+* The valid values for the menu should not change when the user changes the Scratch language setting.
+  * In particular, changing languages should never break a working project.
+* The average Scratch user should be able to figure out the valid values for this input without referring to extension
+  documentation.
+  * One way to ensure this is to make an item's text match or include the item's value. For example, the official Music
+    extension contains menu items with names like "(1) Piano" with value 1, "(8) Cello" with value 8, and so on.
+* The block should accept any value as input, even "invalid" values.
+  * Scratch has no concept of a runtime error!
+  * For a command block, sometimes the best option is to do nothing.
+  * For a reporter, returning zero or the empty string might make sense.
+* The block should be forgiving in its interpretation of inputs.
+  * For example, if the block expects a string and receives a number it may make sense to interpret the number as a
+    string instead of treating it as invalid input.
+
+The `acceptReporters` flag indicates that the user can drop a reporter onto the menu input:
+
+```js
+menus: {
+    staticMenu: {
+        acceptReporters: true,
+        items: [/*...*/]
+    },
+    dynamicMenu: {
+        acceptReporters: true,
+        items: 'getDynamicMenuItems'
+    }
+}
+```
+
 ## Annotated Example
 
 ```js
@@ -151,6 +269,10 @@ class SomeBlocks {
             // Required: the machine-readable name of this extension.
             // Will be used as the extension's namespace.
             id: 'someBlocks',
+
+            // Core extensions only: override the default extension block colors.
+            color1: '#FF8C1A',
+            color2: '#DB6E00',
 
             // Optional: the human-readable name of this extension as string.
             // This and any other string to be displayed in the Scratch UI may either be
@@ -307,7 +429,16 @@ class SomeBlocks {
 
                 // Dynamic menu: returns an array as above.
                 // Called each time the menu is opened.
-                menuB: 'getItemsForMenuB'
+                menuB: 'getItemsForMenuB',
+
+                // The examples above are shorthand for setting only the `items` property in this full form:
+                menuC: {
+                    // This flag makes a "droppable" menu: the menu will allow dropping a reporter in for the input.
+                    acceptReporters: true,
+
+                    // The `item` property may be an array or function name as in previous menu examples.
+                    items: [/*...*/] || 'getItemsForMenuC'
+                }
             },
 
             // Optional: translations (UNSTABLE - NOT YET SUPPORTED)
@@ -355,4 +486,116 @@ class SomeBlocks {
         });
     };
 }
+```
+
+## Experimental / In Development Features
+
+The following are experimental features that are under active development and subject to change during the process
+of converting the core Scratch blocks into using the extension spec.
+
+### Dynamic Blocks
+The content above describes defining static extension blocks (e.g. blocks that will always keep the same shape). While most
+blocks in the Scratch language fall into this category, there are others which may dynamically change their shape based
+state information. An example of this is the `control_stop` block which changes whether or not it can have a command block
+attached after it based on which menu item is selected. Blocks that may dynamically change their shape are referred to below as
+"dynamic blocks".
+
+In order to support Scratch blocks like variables or custom procedure call blocks, we have added the support for dynamic blocks.
+A block is specified to be dynamic by using the `isDynamic` flag in the block specification.
+
+```js
+class SomeBlocks {
+    // ...
+    getInfo () {
+        return {
+            // ...
+            blocks: [
+                {
+                    isDynamic: true
+                    opcode: 'dynamicReporter',
+                    blockType: BlockType.REPORTER,
+                    text: 'my dynamic reporter block',
+                }
+            ]
+        };
+    }
+    // ...
+}
+```
+
+#### Adding Custom Context Menu Options
+Dynamic blocks can have custom context menu options in addition to the default options for adding
+a block comment, deleting the block, and duplicating the block.
+
+In order to specify custom context menu options, you can provide a list of context menu item descriptors
+which contain the text label for the menu item as well as the name of the function in the extension that should be run when
+the block is selected.
+
+The context menu callback function will have access to an object with the `blockInfo` for the block instance whose context menu was triggered.
+
+```js
+class SomeBlocks {
+    // ...
+    getInfo () {
+        return {
+            // ...
+            blocks: [
+                {
+                    isDynamic: true
+                    opcode: 'dynamicReporter',
+                    blockType: BlockType.REPORTER,
+                    text: 'my dynamic reporter block',
+                    customContextMenu: [
+                        {
+                            text: 'Context Menu Item 1',
+                            callback: 'myContextMenuFunction'
+                        },
+                        {
+                            text: 'Context Menu Item 2',
+                            callback: 'anotherContextMenuFunction'
+                        }
+                    ]
+                }
+            ]
+        };
+    }
+
+    myContextMenuFunction ({blockInfo}) {
+        // ...
+    }
+
+    anotherContextMenuFunction ({blockInfo}) {
+        // ...
+    }
+    // ...
+}
+```
+
+For each context menu item, you can also optionally specify which situations that context menu item
+should appear in.
+
+The options for the context menu item context are as follows:
+
+`ContextMenuContext.ALL` - The context menu item should always appear in the block's context menu. This is the default option.
+
+`ContextMenuContext.TOOLBOX_ONLY` - The context menu item should only appear in the block's context menu when the block is in the toolbox.
+
+`ContextMenuContext.WORKSPACE_ONLY` - The context menu item should only appear in the block's context menu when the block is on the main workspace.
+
+By default, a context menu item will appear on the block in both the toolbox as well as the
+main workspace.
+
+```
+customContextMenu: [
+    {
+        text: 'Context Menu Item Hidden From Toolbox',
+        callback: 'myContextMenuFunction',
+        context: ContextMenuContext.WORKSPACE_ONLY
+    },
+    {
+        text: 'Context Menu Item Hidden From Workspace',
+        callback: 'anotherContextMenuFunction',
+        context: ContextMenuContext.TOOLBOX_ONLY
+    }
+]
 ```

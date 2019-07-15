@@ -28,6 +28,7 @@ require('canvas-toBlob');
 const RESERVED_NAMES = ['_mouse_', '_stage_', '_edge_', '_myself_', '_random_'];
 
 const CORE_EXTENSIONS = [
+    'data'
     // 'motion',
     // 'looks',
     // 'sound',
@@ -109,17 +110,27 @@ class VirtualMachine extends EventEmitter {
         this.runtime.on(Runtime.BLOCK_DRAG_END, (blocks, topBlockId) => {
             this.emit(Runtime.BLOCK_DRAG_END, blocks, topBlockId);
         });
-        this.runtime.on(Runtime.EXTENSION_ADDED, blocksInfo => {
-            this.emit(Runtime.EXTENSION_ADDED, blocksInfo);
+        this.runtime.on(Runtime.EXTENSION_ADDED, categoryInfo => {
+            this.emit(Runtime.EXTENSION_ADDED, categoryInfo);
         });
         this.runtime.on(Runtime.EXTENSION_FIELD_ADDED, (fieldName, fieldImplementation) => {
             this.emit(Runtime.EXTENSION_FIELD_ADDED, fieldName, fieldImplementation);
         });
-        this.runtime.on(Runtime.BLOCKSINFO_UPDATE, blocksInfo => {
-            this.emit(Runtime.BLOCKSINFO_UPDATE, blocksInfo);
+        // TODO rename this event (and corresponding references to blocksInfo in the runtime)
+        // so that it is not confused with an extension block instance's `blockInfo` property.
+        this.runtime.on(Runtime.BLOCKSINFO_UPDATE, categoryInfo => {
+            this.emit(Runtime.BLOCKSINFO_UPDATE, categoryInfo);
         });
+        // TODO remove this when sensing_of block gets extension-ified
+        // it will be replaced with the event above
         this.runtime.on(Runtime.BLOCKS_NEED_UPDATE, () => {
             this.emitWorkspaceUpdate();
+        });
+        this.runtime.on(Runtime.BLOCK_UPDATE, (blockId, blockInfo) => {
+            this.emit(Runtime.BLOCK_UPDATE, blockId, blockInfo);
+        });
+        this.runtime.on(Runtime.TOOLBOX_EXTENSIONS_NEED_UPDATE, () => {
+            this.extensionManager.refreshBlocks();
         });
         this.runtime.on(Runtime.PERIPHERAL_LIST_UPDATE, info => {
             this.emit(Runtime.PERIPHERAL_LIST_UPDATE, info);
@@ -795,6 +806,8 @@ class VirtualMachine extends EventEmitter {
             sound.assetId = sound.asset.assetId;
             sound.dataFormat = storage.DataFormat.WAV;
             sound.md5 = `${sound.assetId}.${sound.dataFormat}`;
+            sound.sampleCount = newBuffer.length;
+            sound.rate = newBuffer.sampleRate;
         }
         // If soundEncoding is null, it's because gui had a problem
         // encoding the updated sound. We don't want to store anything in this
@@ -1524,6 +1537,14 @@ class VirtualMachine extends EventEmitter {
             }
         }
         return null;
+    }
+
+    /**
+     * Allow VM consumer to configure the ScratchLink socket creator.
+     * @param {Function} factory The custom ScratchLink socket factory.
+     */
+    configureScratchLinkSocketFactory (factory) {
+        this.runtime.configureScratchLinkSocketFactory(factory);
     }
 }
 
