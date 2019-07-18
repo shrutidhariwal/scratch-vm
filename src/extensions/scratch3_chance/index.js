@@ -11,6 +11,8 @@ class ChanceExtension {
         this.dice1Value = 1;
         this.dice1Distribution = '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666';
         this.dice2Distribution = '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666';
+        this.dice1Strings = '1,2,3,4,5,6';
+        this.dice2Strings = '1,2,3,4,5,6';
         this.setValue = function (currentDist, side, chance) {
             if (chance >= 100) {
                 chance = 100.0;
@@ -120,7 +122,7 @@ class ChanceExtension {
                         },
                         DISTRIBUTION: {
                             type: ArgumentType.SLIDER,
-                            defaultValue: '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666'
+                            defaultValue: '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666;1,2,3,4,5,6'
                         }
                     }
 
@@ -252,7 +254,7 @@ class ChanceExtension {
                     arguments: {
                         DISTRIBUTION: {
                             type: ArgumentType.SLIDER,
-                            defaultValue: '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666'
+                            defaultValue: '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666;1,2,3,4,5,6'
                         }
                     }
 
@@ -385,8 +387,9 @@ class ChanceExtension {
 
 
     makeADice (args) {
-        const sliders = args.DISTRIBUTION.split(',');
-        
+        let sliders = args.DISTRIBUTION.split(';');
+        const strings = sliders[1].split(',');
+        sliders = JSON.parse('[' + sliders[0] + ']');
         // Convert all the slider array elements from strings into floats.
         for (let i = 0; i < sliders.length; i++) sliders[i] = +sliders[i];
         
@@ -397,7 +400,7 @@ class ChanceExtension {
         const randomNumber = random() * 100.0;
         for (let i = 0; i < sliders.length; i++) {
             if (randomNumber <= sliderSums[i]) {
-                return i + 1;
+                return strings[i];
             }
         }
     }
@@ -431,13 +434,17 @@ class ChanceExtension {
     rollDice (args) {
         const dice = args.DICE;
         let distribution;
+        let strings;
         if (dice === 'dice1') {
             distribution = this.dice1Distribution;
+            strings = this.dice1Strings;
         } else {
             distribution = this.dice2Distribution;
+            strings = this.dice2Strings;
         }
         
         let sliders = JSON.parse("[" + distribution + "]");
+        strings = strings.split(',');
         let newValue;
         const sliderSums = [sliders[0]];
         for (let i = 1; i < sliders.length; i++) {
@@ -446,7 +453,7 @@ class ChanceExtension {
         const randomNumber = random() * 100.0;
         for (let i = 0; i < sliders.length; i++) {
             if (randomNumber <= sliderSums[i]) {
-                newValue = i + 1;
+                newValue = strings[i];
                 break;
             }
         }
@@ -459,11 +466,16 @@ class ChanceExtension {
     // Change the distribution of a dice.
     setDistribution (args) {
         const dice = args.DICE;
-        const distribution = args.DISTRIBUTION;
+        let distribution = args.DISTRIBUTION;
+        const splitted = distribution.split(';');
+        distribution = splitted[0];
+        const strings = splitted[1];
         if (dice === 'dice1') {
             this.dice1Distribution = distribution;
+            this.dice1Strings = strings;
         } else {
             this.dice2Distribution = distribution;
+            this.dice2Strings = strings;
         }
     }
 
