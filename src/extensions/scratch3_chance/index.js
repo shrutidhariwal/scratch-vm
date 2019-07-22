@@ -11,8 +11,8 @@ class ChanceExtension {
         this.dice1Value = 1;
         this.dice1Distribution = '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666';
         this.dice2Distribution = '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666';
-        this.dice1Strings = '1,2,3,4,5,6';
-        this.dice2Strings = '1,2,3,4,5,6';
+        this.dice1Strings = '1~2~3~4~5~6';
+        this.dice2Strings = '1~2~3~4~5~6';
         this.setValue = function (currentDist, side, chance) {
             if (chance >= 100) {
                 chance = 100.0;
@@ -122,7 +122,7 @@ class ChanceExtension {
                         },
                         DISTRIBUTION: {
                             type: ArgumentType.SLIDER,
-                            defaultValue: '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666;1,2,3,4,5,6'
+                            defaultValue: '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666|1~2~3~4~5~6'
                         }
                     }
 
@@ -254,7 +254,7 @@ class ChanceExtension {
                     arguments: {
                         DISTRIBUTION: {
                             type: ArgumentType.SLIDER,
-                            defaultValue: '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666;1,2,3,4,5,6'
+                            defaultValue: '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666|1~2~3~4~5~6'
                         }
                     }
 
@@ -387,8 +387,8 @@ class ChanceExtension {
 
 
     makeADice (args) {
-        let sliders = args.DISTRIBUTION.split(';');
-        const strings = sliders[1].split(',');
+        let sliders = args.DISTRIBUTION.split('|');
+        const strings = sliders[1].split('~');
         sliders = JSON.parse('[' + sliders[0] + ']');
         // Convert all the slider array elements from strings into floats.
         for (let i = 0; i < sliders.length; i++) sliders[i] = +sliders[i];
@@ -444,7 +444,7 @@ class ChanceExtension {
         }
         
         let sliders = JSON.parse("[" + distribution + "]");
-        strings = strings.split(',');
+        strings = strings.split('~');
         let newValue;
         const sliderSums = [sliders[0]];
         for (let i = 1; i < sliders.length; i++) {
@@ -467,7 +467,7 @@ class ChanceExtension {
     setDistribution (args) {
         const dice = args.DICE;
         let distribution = args.DISTRIBUTION;
-        const splitted = distribution.split(';');
+        const splitted = distribution.split('|');
         distribution = splitted[0];
         const strings = splitted[1];
         if (dice === 'dice1') {
