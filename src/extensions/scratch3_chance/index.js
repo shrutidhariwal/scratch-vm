@@ -549,11 +549,11 @@ class ChanceExtension {
     // return number of sides in a dice to allow for easy iteration
     numberOfSides(args) {
         const dice = args.DICE;
-        let sides = 0;
+        let sides;
         if (dice === 'dice1') {
-            sides = this.dice1Strings.split(',').length;
+            sides = this.dice1Strings.split('~').length;
         } else {
-            sides = this.dice2Strings.split(',').length;
+            sides = this.dice2Strings.split('~').length;
         }
         return sides;
     }
