@@ -34,15 +34,12 @@ class ChanceExtension {
      */
     getInfo() {
 
-        this.dice1Value = '1';
-        this.dice1Strings = '1~2~3~4~5~6';
-        this.dice1Distribution = '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666';
-        this.dice2Value = '1';
-        this.dice2Strings = '1~2~3~4~5~6';
-        this.dice2Distribution = '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666';
-        this.sidesShow = ["(1) 1", "(2) 2", "(3) 3", "(4) 4", "(5) 5", "(6) 6"];
+        this.dice = [];
         this.sidesInternal = ["1", "2", "3", "4", "5", "6"];
-
+        this.blocks = [];
+        //initializing
+        this.addDiceObject('dice1');
+        this.addDiceObject('dice2');
         this.setValue = function(currentDist, side, chance) {
             if (chance >= 100) {
                 chance = 100.0;
@@ -88,7 +85,6 @@ class ChanceExtension {
             sliders[side] = chance;
             return sliders.toString();
         };
-        this.blocks = [];
         this.addBlocks();
         return {
 
@@ -104,49 +100,38 @@ class ChanceExtension {
             blocks: this.blocks,
             menus: {
                 diceMenu: {
-                    items: ['dice1','dice2'],
+                    items: 'getDiceMenu',
                     acceptReporters: true
                 },
-            
+
                 sideMenu: {
                     items: 'getSideMenu',
                     acceptReporters: true
+                },
+                diceOptions: {
+                    items: ['create', 'rename', 'delete']
                 }
             }
         };
     }
 
-    // added a function so we can add modal or block to 
-    // dynamically push new dice reporter blocks
     addBlocks() {
+
         this.blocks.push(
-            /*{
-                opcode: 'makeNewDice',
-                blockType: BlockType.COMMAND,
-                text: 'make new dice [DICE_NAME]',
+
+            {
+                opcode: 'diceVal',
+                blockType: BlockType.REPORTER,
+                text: '[DICE]',
                 arguments: {
-                    DICE_NAME: {
+                    DICE: {
                         type: ArgumentType.STRING,
-                        defaultValue: 'dice3'
+                        defaultValue: 'dice1',
+                        menu: 'diceMenu'
                     }
                 }
-            },*/
-
-            // dice1 reporter
-            {
-                opcode: 'dice1',
-                blockType: BlockType.REPORTER,
-                text: 'dice1',
             },
 
-            //dice2 reporter
-            {
-                opcode: 'dice2',
-                blockType: BlockType.REPORTER,
-                text: 'dice2',
-            },
-
-            //slider dropdown for dice
             {
                 opcode: 'setDistribution',
                 blockType: BlockType.COMMAND,
@@ -179,23 +164,6 @@ class ChanceExtension {
 
                 }
             },
-            // roll dice with slider implementation (old)
-            /*{
-                opcode: 'rollDice',
-                blockType: BlockType.COMMAND,
-                text: 'roll [DICE] with sides [DISTRIBUTION]',
-                arguments: {
-                    DICE: {
-                        type: ArgumentType.STRING,
-                        defaultValue: 'dice1',
-                        menu: 'diceMenu'
-                    },
-                    DISTRIBUTION: {
-                        type: ArgumentType.SLIDER,
-                        defaultValue: '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666;1,2,3,4,5,6'
-                    }
-                }
-            },*/
 
             //check if dice roll is some value
             {
@@ -214,26 +182,7 @@ class ChanceExtension {
                         menu: 'sideMenu'
                     }
                 }
-            }, 
-            //realized yesterday this block cannot function in this case, 
-            //as it only triggers when a change happens, will explain.
-            /*{
-                opcode: 'rollsHat',
-                blockType: BlockType.HAT,
-                text: 'when [DICE] rolls [SIDE]',
-                arguments: {
-                    DICE: {
-                        type: ArgumentType.STRING,
-                        defaultValue: 'dice1',
-                        menu: 'diceMenu'
-                    },
-                    SIDE: {
-                        type: ArgumentType.STRING,
-                        defaultValue: ' ',
-                        menu: 'sideMenu'
-                    }
-                }
-            }, */{
+            }, {
                 opcode: 'chanceOfReporter',
                 blockType: BlockType.REPORTER,
                 text: 'chance of [DICE] [SIDE]',
@@ -293,28 +242,8 @@ class ChanceExtension {
                     }
                 }
 
-            },
-            /*{
-                           opcode: 'setSideName',
-                           blockType: BlockType.COMMAND,
-                           text: 'set value of [DICE] [SIDE] to [SIDE_NAME]',
-                           arguments: {
-                               DICE: {
-                                   type: ArgumentType.STRING,
-                                   defaultValue: 'dice1',
-                                   menu: 'diceMenu'
-                               },
-                               SIDE: {
-                                   type: ArgumentType.NUMBER,
-                                   defaultValue: '1',
-                                   menu: 'sideMenu'
-                               },
-                               SIDE_NAME: {
-                                   type: ArgumentType.STRING,
-                                   defaultValue: ' '
-                               }
-                           }
-                       },*/
+            }, 
+
             {
                 opcode: 'numberOfSides',
                 blockType: BlockType.REPORTER,
@@ -326,119 +255,126 @@ class ChanceExtension {
                         menu: 'diceMenu'
                     }
                 }
-            }
-            /*{
-                opcode: 'chanceHat',
-                blockType: BlockType.HAT,
-                text: 'when chance of [DICE] [SIDE] > [CHANCE]',
+            },
+            // Block to create new dice and rename or delete existing dice
+            {
+                opcode: 'diceFunc',
+                blockType: BlockType.COMMAND,
+                text: '[DICE_OPTIONS] [DICE] [NAME]',
                 arguments: {
+                    DICE_OPTIONS: {
+                        type: ArgumentType.STRING,
+                        defaultValue: 'create',
+                        menu: 'diceOptions'
+                    },
                     DICE: {
                         type: ArgumentType.STRING,
-                        defaultValue: 'dice1',
+                        defaultValue: ' ',
                         menu: 'diceMenu'
                     },
-                    SIDE: {
-                        type: ArgumentType.NUMBER,
-                        defaultValue: 1,
-                        menu: 'sideMenu'
-                    },
-                    CHANCE: {
-                        type: ArgumentType.NUMBER,
-                        defaultValue: 10
+                    NAME: {
+                        type: ArgumentType.STRING,
+                        defaultValue: 'dice3',
                     }
                 }
-            }*/
-
-            /*{
-                opcode: 'dice1Dist',
-                blockType: BlockType.REPORTER,
-                text: 'dice 1 sides',
-            },
-            {
-                opcode: 'dice2Dist',
-                blockType: BlockType.REPORTER,
-                text: 'dice 2 sides'
-            }*/
-        );
+            });
     }
 
-    //exploring how to add a new dice reporter with a block
-    /*makeNewDice(args, util) {
-        this.blocks.push({
-            opcode: 'dice3',
-            blockType: BlockType.REPORTER,
-            text: args.DICE_NAME,
+    // Function to add dice with a given name
+    addDiceObject(name) {
+        this.dice.push({
+            diceName: name,
+            value: '1',
+            strings: '1~2~3~4~5~6',
+            distribution: '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666'
         });
-        //console.log(util.sequencer.runtime.flyoutBlocks._blocks);
-    }*/
+    }
 
-    // Dynamically update side menu based on set sides block
 
+
+    // Set dice menu dynamically
+    getDiceMenu() {
+        const diceItems = [];
+        for (let i = 0; i < this.dice.length; i++) {
+            diceItems.push(this.dice[i].diceName);
+        }
+        return diceItems;
+    }
+
+    // Set side menu based dynamically
     getSideMenu() {
-        return this.sidesShow;
+        let sidesShow = [];
+        this.sidesInternal.forEach(function(element, i) {
+            sidesShow.push("(" + (i + 1) + ") " + element);
+        });
+        return sidesShow;
     }
 
-
-    // First dice with stored value.
-    dice1() {
-        return this.dice1Value;
-    }
-    // Second dice with stored value.
-    dice2() {
-        return this.dice2Value;
+    checkIfExists(value) {
+        let index = this.dice.findIndex(item => item.diceName === value);
+        return index;
     }
 
-    //These were temporary, we can iterate over number of sides, to get chance of each side
-    /*dice1Dist() {
-        let sliders = JSON.parse('[' + this.dice1Distribution + ']');
-        for (let i = 0; i < sliders.length; i++) {
-            sliders[i] = Math.round(sliders[i]);
+    diceFunc(args) {
+        const dice = args.DICE;
+        const name = args.NAME;
+        const selected = args.DICE_OPTIONS;
+        switch (selected) {
+
+            case 'create':
+                if (this.checkIfExists(name) === -1) {
+                    this.addDiceObject(name);
+                } else
+                    alert("Dice named \"" + name + "\" already exists.");
+                break;
+
+            case 'rename':
+                if (this.checkIfExists(dice) > -1) {
+                    if (this.checkIfExists(name) === -1)
+                        this.dice[this.checkIfExists(dice)].diceName = name;
+                    else
+                        alert("Dice named \"" + name + "\" already exists.");
+                } else
+                    alert("Select dice from the dropdown menu to rename to \"" + name + "\".");
+                break;
+
+            case 'delete':
+                if (this.dice.length > 1) {
+                    if (this.checkIfExists(dice) > -1)
+                        this.dice.splice(this.checkIfExists(dice), 1);
+                    else
+                        alert("Select dice from the dropdown menu to delete.");
+                } else
+                    alert("Cannot delete \"" + dice + "\".");
+                break;
+
+            default:
+                break;
         }
-        return sliders.toString();
     }
 
-    dice2Dist() {
-        let sliders = JSON.parse('[' + this.dice2Distribution + ']');
-        for (let i = 0; i < sliders.length; i++) {
-            sliders[i] = Math.round(sliders[i]);
-        }
-        return sliders.toString();
-    }*/
+    diceVal(args) {
+        const i = this.checkIfExists(args.DICE);
+        return this.dice[i].value;
+    }
 
     // Set the distribution of dice.
     setDistribution(args) {
-        const dice = args.DICE;
+        const i = this.checkIfExists(args.DICE);
         let distribution = args.DISTRIBUTION;
         const splitted = distribution.split('|');
         distribution = splitted[0];
         const strings = splitted[1];
         let sides = strings.split('~');
         this.sidesInternal = sides;
-        for (let i = 0; i < sides.length; i++) {
-            sides[i] = '(' + (i + 1).toString() + ') ' + sides[i];
-        }
-        this.sidesShow = sides;
-        if (dice === 'dice1') {
-            this.dice1Distribution = distribution;
-            this.dice1Strings = strings;
-        } else {
-            this.dice2Distribution = distribution;
-            this.dice2Strings = strings;
-        }
+        this.dice[i].distribution = distribution;
+        this.dice[i].strings = strings;
     }
 
     rollDice(args) {
-        const dice = args.DICE;
-        let distribution;
-        let strings;
-        if (dice === 'dice1') {
-            distribution = this.dice1Distribution;
-            strings = this.dice1Strings;
-        } else {
-            distribution = this.dice2Distribution;
-            strings = this.dice2Strings;
-        }
-
+        const i = this.checkIfExists(args.DICE);
+        let distribution = this.dice[i].distribution;
+        let strings = this.dice[i].strings;
         let sliders = JSON.parse("[" + distribution + "]");
         strings = strings.split('~');
         let newValue;
@@ -453,50 +389,33 @@ class ChanceExtension {
                 break;
             }
         }
-        if (dice === 'dice1') {
-            this.dice1Value = newValue;
-        } else {
-            this.dice2Value = newValue;
-        }
+        this.dice[i].value = newValue;
     }
 
     setChance(args) {
-        const dice = args.DICE;
+        const i = this.checkIfExists(args.DICE);
         let side;
         if (args.SIDE.toString().includes('(')) {
             side = parseInt(args.SIDE.split(')')[0].split('(')[1]) - 1;
         } else
             side = args.SIDE - 1;
+            //side = this.dice.findIndex(item => item.value === args.SIDE);
         const chance = Cast.toNumber(args.CHANCE);
-        let currentDist;
-        if (dice === 'dice1') {
-            currentDist = this.dice1Distribution;
-        } else {
-            currentDist = this.dice2Distribution;
-        }
+        let currentDist = this.dice[i].distribution;
         const final = this.setValue(currentDist, side, chance);
-
-        if (dice === 'dice1') {
-            this.dice1Distribution = final;
-        } else {
-            this.dice2Distribution = final;
-        }
+        this.dice[i].distribution = final;
     }
 
     changeChance(args) {
-        const dice = args.DICE;
+        const i = this.checkIfExists(args.DICE);
         let side;
         if (args.SIDE.toString().includes('(')) {
             side = parseInt(args.SIDE.split(')')[0].split('(')[1]) - 1;
         } else
             side = args.SIDE - 1;
+            //side = this.dice.findIndex(item => item.value === args.SIDE);
         let chance = Cast.toNumber(args.CHANCE);
-        let currentDist;
-        if (dice === 'dice1') {
-            currentDist = this.dice1Distribution;
-        } else {
-            currentDist = this.dice2Distribution;
-        }
+        let currentDist = this.dice[i].distribution;
         const sliders = JSON.parse('[' + currentDist + ']');
         let currentValue;
         if (side < sliders.length) {
@@ -506,27 +425,18 @@ class ChanceExtension {
         }
         chance += currentValue;
         const final = this.setValue(currentDist, side, chance);
-        if (dice === 'dice1') {
-            this.dice1Distribution = final;
-        } else {
-            this.dice2Distribution = final;
-        }
+        this.dice[i].distribution = final;
     }
 
     chanceOfReporter(args) {
-        const dice = args.DICE;
+        const i = this.checkIfExists(args.DICE);
         let side;
         if (args.SIDE.toString().includes('(')) {
             side = parseInt(args.SIDE.split(')')[0].split('(')[1]) - 1;
         } else
-            side = parseInt(args.SIDE) - 1;
-        let currentDist;
-        if (dice === 'dice1') {
-            currentDist = this.dice1Distribution;
-        } else {
-            currentDist = this.dice2Distribution;
-        }
-        const sliders = JSON.parse('[' + currentDist + ']');
+            side = args.SIDE - 1;
+            //side = this.dice.findIndex(item => item.value === args.SIDE);
+        const sliders = JSON.parse('[' + this.dice[i].distribution + ']');
         if (side < sliders.length) {
             return Math.round(sliders[side]);
         }
@@ -534,107 +444,20 @@ class ChanceExtension {
     }
 
     ifDiceBool(args) {
-        const dice = args.DICE;
+        const i = this.checkIfExists(args.DICE);
         let side;
         if (args.SIDE.toString().includes('(')) {
             side = args.SIDE.split(' ')[1];
         } else
-            side = this.sidesInternal[args.SIDE - 1];
-        if (dice === 'dice1') {
-            return (side === this.dice1Value);
-        } else {
-            return (side === this.dice2Value);
-        }
+            side = args.SIDE - 1;
+            //side = this.sidesInternal[this.dice.findIndex(item => item.value === args.SIDE)];
+        return (side === this.dice[i].value);
     }
+
     // return number of sides in a dice to allow for easy iteration
     numberOfSides(args) {
-        const dice = args.DICE;
-        let sides;
-        if (dice === 'dice1') {
-            sides = this.dice1Strings.split('~').length;
-        } else {
-            sides = this.dice2Strings.split('~').length;
-        }
-        return sides;
+        const i = this.checkIfExists(args.DICE);
+        return this.dice[i].strings.split('~').length;
     }
 }
 module.exports = ChanceExtension;
-
-//Think about this block (how to set the name of the face dynamically with a block)
-/* setSideName(args) {
-         const dice = args.DICE;
-         const sideName = args.SIDE_NAME;
-         const side = this.sides.indexOf(args.SIDE);
-         let newName = [];
-         if (dice === 'dice1') {
-             newName = this.dice1Strings.split(',');
-             newName[side] = sideName;
-             this.dice1Strings = newName.join();
-             this.sides = this.dice1Strings.split(',');
-         } else {
-             newName = this.dice2Strings.split(',');
-             newName[side] = sideName;
-             this.dice2Strings = newName.join();
-             this.sides = this.dice2Strings.split(',');
-         }
-     }*/
-
-// We don't need this block
-/*chanceHat(args) {
-        const dice = args.DICE;
-        let side = this.sides.indexOf(args.SIDE);
-        const chance = Cast.toNumber(args.CHANCE);
-        let currentDist;
-        if (dice === 'dice1') {
-            currentDist = this.dice1Distribution;
-        } else {
-            currentDist = this.dice2Distribution;
-        }
-        const sliders = JSON.parse('[' + currentDist + ']');
-        let currentValue;
-        if (side < sliders.length) {
-            currentValue = sliders[side];
-        } else {
-            currentValue = 0;
-        }
-        if (currentValue > chance) {
-            return true;
-        }
-        return false;
-
-    }*/
-
-/* Roll dice with sides implementation with no set sides block
-    rollDice(args) {
-        const dice = args.DICE;
-        const splitted = args.DISTRIBUTION.split(';');
-        const distribution = splitted[0];
-        const strings = splitted[1];
-        const sliders = JSON.parse("[" + distribution + "]");
-        const sliderSums = [sliders[0]];
-        for (let i = 1; i < sliders.length; i++) {
-            sliderSums.push(sliderSums[sliderSums.length - 1] + sliders[i]);
-        }
-        if (dice === 'dice1') {
-            this.dice1Distribution = distribution;
-            this.dice1Strings = strings;
-        } else {
-            this.dice2Distribution = distribution;
-            this.dice2Strings = strings;
-        }
-        let newValue;
-        const currentSides = strings.split(',');
-        const randomNumber = random() * 100.0;
-        for (let i = 0; i < sliders.length; i++) {
-            if (randomNumber <= sliderSums[i]) {
-                newValue = currentSides[i]
-                break;
-            }
-        }
-        this.sides = currentSides;
-        if (dice === 'dice1') {
-            this.dice1Value = newValue;
-        } else {
-            this.dice2Value = newValue;
-        }
-    }*/
