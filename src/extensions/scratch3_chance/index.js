@@ -46,7 +46,7 @@ class ChanceExtension {
             } else if (chance <= 0) {
                 chance = 0.0;
             }
-            let sliders = JSON.parse("[" + currentDist + "]");
+            let sliders = currentDist;
             let difference;
 
             // If the current dice does not have that many sides as the user is requesting:
@@ -83,7 +83,7 @@ class ChanceExtension {
             }
 
             sliders[side] = chance;
-            return sliders.toString();
+            return sliders;
         };
         this.addBlocks();
         return {
@@ -363,20 +363,37 @@ class ChanceExtension {
         const i = this.checkIfExists(args.DICE);
         let distribution = args.DISTRIBUTION;
         const splitted = distribution.split('|');
-        distribution = splitted[0];
-        const strings = splitted[1];
-        let sides = strings.split('~');
-        this.sidesInternal = sides;
-        this.dice[i].distribution = distribution;
-        this.dice[i].strings = strings;
+        distribution = JSON.parse('[' + splitted[0] + ']');
+        const strings = splitted[1].split('~');
+        // If user asked this dice to become random.
+        if (splitted.length === 3) {
+            let sumOfArray = 0.0;
+            const numSliders = distribution.length;
+            let newValue;
+            const newArray = [];
+            for (let j = 0; j < numSliders; j++) {
+                newValue = Math.random();
+                newArray.push(newValue);
+                sumOfArray += newValue;
+            }
+            for (let j = 0; j < numSliders; j++) {
+                newArray[j] = (newArray[j] / sumOfArray) * 100.0;
+            }
+            this.sidesInternal = strings;
+            this.dice[i].distribution = newArray;
+            this.dice[i].strings = strings;
+        } else {
+            this.sidesInternal = strings;
+            this.dice[i].distribution = distribution;
+            this.dice[i].strings = strings;
+        }
+        
     }
 
     rollDice(args) {
         const i = this.checkIfExists(args.DICE);
-        let distribution = this.dice[i].distribution;
         let strings = this.dice[i].strings;
-        let sliders = JSON.parse("[" + distribution + "]");
-        strings = strings.split('~');
+        let sliders = this.dice[i].distribution;
         let newValue;
         const sliderSums = [sliders[0]];
         for (let i = 1; i < sliders.length; i++) {
@@ -415,8 +432,7 @@ class ChanceExtension {
             side = args.SIDE - 1;
             //side = this.dice.findIndex(item => item.value === args.SIDE);
         let chance = Cast.toNumber(args.CHANCE);
-        let currentDist = this.dice[i].distribution;
-        const sliders = JSON.parse('[' + currentDist + ']');
+        const sliders = this.dice[i].distribution;
         let currentValue;
         if (side < sliders.length) {
             currentValue = sliders[side];
@@ -436,7 +452,7 @@ class ChanceExtension {
         } else
             side = args.SIDE - 1;
             //side = this.dice.findIndex(item => item.value === args.SIDE);
-        const sliders = JSON.parse('[' + this.dice[i].distribution + ']');
+        const sliders = this.dice[i].distribution;
         if (side < sliders.length) {
             return Math.round(sliders[side]);
         }
@@ -457,7 +473,7 @@ class ChanceExtension {
     // return number of sides in a dice to allow for easy iteration
     numberOfSides(args) {
         const i = this.checkIfExists(args.DICE);
-        return this.dice[i].strings.split('~').length;
+        return this.dice[i].strings.length;
     }
 }
 module.exports = ChanceExtension;
