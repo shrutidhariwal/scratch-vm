@@ -365,8 +365,9 @@ class ChanceExtension {
         const splitted = distribution.split('|');
         
         const strings = splitted[1].split('~');
+        distribution = JSON.parse('[' + splitted[0] + ']');
         // If user asked this dice to become random.
-        if (splitted[0] === 'random') {
+        if (splitted.length === 3) {
             let sumOfArray = 0.0;
             const numSliders = distribution.length;
             let newValue;
@@ -383,7 +384,6 @@ class ChanceExtension {
             this.dice[i].distribution = newArray;
             this.dice[i].strings = strings;
         } else {
-            distribution = JSON.parse('[' + splitted[0] + ']');
             this.sidesInternal = strings;
             this.dice[i].distribution = distribution;
             this.dice[i].strings = strings;
