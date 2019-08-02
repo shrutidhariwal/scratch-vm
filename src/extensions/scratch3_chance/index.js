@@ -285,8 +285,8 @@ class ChanceExtension {
         this.dice.push({
             diceName: name,
             value: '1',
-            strings: '1~2~3~4~5~6',
-            distribution: '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666'
+            strings: ['1', '2', '3', '4', '5', '6'],
+            distribution: [16.666666, 16.666666, 16.666666, 16.666666, 16.666666, 16.666666]
         });
     }
 
@@ -454,6 +454,7 @@ class ChanceExtension {
             side = args.SIDE - 1;
             //side = this.dice.findIndex(item => item.value === args.SIDE);
         const sliders = this.dice[i].distribution;
+        console.log(sliders);
         if (side < sliders.length) {
             return Math.round(sliders[side]);
         }
