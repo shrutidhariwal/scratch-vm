@@ -453,7 +453,7 @@ class Scratch3ChanceBlocks {
         if (args.SIDE.toString().includes('(')) {
             side = parseInt(args.SIDE.split(')')[0].split('(')[1]) - 1;
         } else
-            side = getSideIndex(i , args.SIDE);
+            side = this.getSideIndex(i , args.SIDE);
         const chance = Cast.toNumber(args.CHANCE);
         let currentDist = this.runtime.dice[i].distribution;
         const final = this.setValue(currentDist, side, chance);
@@ -468,7 +468,7 @@ class Scratch3ChanceBlocks {
         if (args.SIDE.toString().includes('(')) {
             side = parseInt(args.SIDE.split(')')[0].split('(')[1]) - 1;
         } else
-            side = getSideIndex(i , args.SIDE);
+            side = this.getSideIndex(i , args.SIDE);
         let chance = Cast.toNumber(args.CHANCE);
         let currentDist = this.runtime.dice[i].distribution;
         const sliders = JSON.parse('[' + currentDist + ']');
@@ -490,7 +490,7 @@ class Scratch3ChanceBlocks {
         if (args.SIDE.toString().includes('(')) {
             side = parseInt(args.SIDE.split(')')[0].split('(')[1]) - 1;
         } else
-            side = getSideIndex(i , args.SIDE);
+            side = this.getSideIndex(i , args.SIDE);
         const sliders = JSON.parse('[' + this.runtime.dice[i].distribution + ']');
         if (side < sliders.length) {
             return Math.round(sliders[side]);
@@ -505,7 +505,7 @@ class Scratch3ChanceBlocks {
         if (args.SIDE.toString().includes('(')) {
             side = args.SIDE.split(' ')[1];
         } else
-            side = getSideIndex(i , args.SIDE);
+            side = this.getSideIndex(i , args.SIDE);
         return (side === this.runtime.dice[i].value);
     }
 
