@@ -48,7 +48,7 @@ class Scratch3ChanceBlocks {
             } else if (chance <= 0) {
                 chance = 0.0;
             }
-            let sliders = JSON.parse("[" + currentDist + "]");
+            let sliders = currentDist;
             let difference;
 
             // If the current dice does not have that many sides as the user is requesting:
@@ -85,7 +85,7 @@ class Scratch3ChanceBlocks {
             }
 
             sliders[side] = chance;
-            return sliders.toString();
+            return sliders;
         };
         this.addBlocks();
         return {
@@ -323,8 +323,10 @@ class Scratch3ChanceBlocks {
         this.runtime.dice.push({
             diceName: name,
             value: '1',
+
             strings: ["1", "2", "3", "4", "5", "6"],
             distribution: '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666'
+
         });
     }
 
@@ -416,20 +418,25 @@ class Scratch3ChanceBlocks {
 
     // To set the distribution of dice
     setDistribution(args) {
+
         const i = this.getDiceIndex(args.DICE);
         const splitted = args.DISTRIBUTION.split('|');
         let distribution = splitted[0];
         this.runtime.dice[i].strings = splitted[1].split('~');
         this.runtime.sidesInternal = this.runtime.dice[i].strings;
         this.runtime.dice[i].distribution = distribution;
+
+       
     }
 
     // Generate and set a particular dice roll value based on given side chances
     rollDice(args) {
+
         const i = this.getDiceIndex(args.DICE);
         let distribution = this.runtime.dice[i].distribution;
         let strings = this.runtime.dice[i].strings;
         let sliders = JSON.parse("[" + distribution + "]");
+
         const sliderSums = [sliders[0]];
         for (let i = 1; i < sliders.length; i++) {
             sliderSums.push(sliderSums[sliderSums.length - 1] + sliders[i]);
@@ -470,8 +477,10 @@ class Scratch3ChanceBlocks {
         } else
             side = this.getSideIndex(i , args.SIDE);
         let chance = Cast.toNumber(args.CHANCE);
+
         let currentDist = this.runtime.dice[i].distribution;
         const sliders = JSON.parse('[' + currentDist + ']');
+
         let currentValue;
         if (side < sliders.length) {
             currentValue = sliders[side];
@@ -490,8 +499,10 @@ class Scratch3ChanceBlocks {
         if (args.SIDE.toString().includes('(')) {
             side = parseInt(args.SIDE.split(')')[0].split('(')[1]) - 1;
         } else
+
             side = this.getSideIndex(i , args.SIDE);
         const sliders = JSON.parse('[' + this.runtime.dice[i].distribution + ']');
+
         if (side < sliders.length) {
             return Math.round(sliders[side]);
         }
@@ -513,6 +524,7 @@ class Scratch3ChanceBlocks {
     numberOfSides(args) {
         const i = this.getDiceIndex(args.DICE);
         return this.runtime.dice[i].strings.length;
+
     }
 
     // Set side name dynamically
