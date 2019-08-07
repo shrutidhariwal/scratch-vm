@@ -322,6 +322,23 @@ class Scratch3ChanceBlocks {
                     }
                 }
             },
+            {
+                opcode: 'setCostumeTo',
+                blockType: BlockType.COMMAND,
+                text: 'switch costume to [DISTRIBUTION]',
+                arguments: {
+                    DISTRIBUTION: {
+                        type: ArgumentType.SLIDER,
+                        defaultValue: '50.0,50.0|costume1~costume2'
+                    }
+                }
+
+            },
+            {
+                opcode: 'vizMonitor',
+                blockType: BlockType.REPORTER,
+                text: 'dice1 current sides'
+            }
 
             /* number of sides in a dice (may be not needed)
             {
@@ -564,6 +581,67 @@ class Scratch3ChanceBlocks {
             sideIndex = args.SIDEINDEX - 1;
         this.runtime.dice[i].strings[sideIndex] = args.SIDENAME;
         this.runtime.sidesInternal = this.runtime.dice[i].strings;
+    }
+
+    vizMonitor() {
+        const sliders = JSON.parse('[' + this.runtime.dice[0].distribution + ']');
+        const blockList = ['▁', '▂', '▃', '▅', '▆', '▇'];
+        const result = [];
+        for (let i = 0; i < sliders.length; i++){
+            let sliderValue = sliders[i];
+            sliderValue = Math.round(sliderValue / 100.0 * (blockList.length - 1));
+            result.push(blockList[sliderValue]);
+        }
+        return result.join(' ');
+
+    }
+
+    setCostumeTo(args, util) {
+        let distribution = args.DISTRIBUTION.split('|');
+        let strings = distribution[1].split('~');
+        let sliders = JSON.parse('[' + distribution[0] + ']');
+        //console.log(util.target.getCostumes());
+        let newValue;
+        const sliderSums = [sliders[0]];
+        for (let i = 1; i < sliders.length; i++) {
+            sliderSums.push(sliderSums[sliderSums.length - 1] + sliders[i]);
+        }
+        const randomNumber = Math.random() * 100.0;
+        for (let i = 0; i < sliders.length; i++) {
+            if (randomNumber <= sliderSums[i]) {
+                newValue = strings[i];
+                break;
+            }
+        }
+    
+        this._setCostume(util.target, newValue);
+
+    }
+
+    _setCostume (target, requestedCostume, optZeroIndex) {
+        if (typeof requestedCostume === 'number') {
+            // Numbers should be treated as costume indices, always
+            target.setCostume(optZeroIndex ? requestedCostume : requestedCostume - 1);
+        } else {
+            // Strings should be treated as costume names, where possible
+            const costumeIndex = target.getCostumeIndexByName(requestedCostume.toString());
+
+            if (costumeIndex !== -1) {
+                target.setCostume(costumeIndex);
+            } else if (requestedCostume === 'next costume') {
+                target.setCostume(target.currentCostume + 1);
+            } else if (requestedCostume === 'previous costume') {
+                target.setCostume(target.currentCostume - 1);
+            // Try to cast the string to a number (and treat it as a costume index)
+            // Pure whitespace should not be treated as a number
+            // Note: isNaN will cast the string to a number before checking if it's NaN
+            } else if (!(isNaN(requestedCostume) || Cast.isWhiteSpace(requestedCostume))) {
+                target.setCostume(optZeroIndex ? Number(requestedCostume) : Number(requestedCostume) - 1);
+            }
+        }
+
+        // Per 2.0, 'switch costume' can't start threads even in the Stage.
+        return [];
     }
 }
 

@@ -43,6 +43,7 @@
     "math-random": "^1.0.4",
     "minilog": "3.1.0",
     "nets": "3.2.0",
+    "random-js": "^2.1.0",
     "scratch-parser": "5.0.0",
     "scratch-sb1-converter": "0.2.7",
     "scratch-translate-extension-languages": "0.0.20190416132834",
