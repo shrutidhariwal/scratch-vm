@@ -29,6 +29,7 @@ class Scratch3ChanceBlocks {
         this.runtime = runtime;
         this.runtime.sidesInternal = ["1", "2", "3", "4", "5", "6"];
         this.runtime.dice = [];
+        this.runtime.sliderString = '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666|1~2~3~4~5~6';
         //initializing
         this.addDiceObject('dice1');
         this.addDiceObject('dice2');
@@ -48,7 +49,7 @@ class Scratch3ChanceBlocks {
             } else if (chance <= 0) {
                 chance = 0.0;
             }
-            let sliders = currentDist;
+            let sliders = JSON.parse("[" + currentDist + "]");
             let difference;
 
             // If the current dice does not have that many sides as the user is requesting:
@@ -85,7 +86,7 @@ class Scratch3ChanceBlocks {
             }
 
             sliders[side] = chance;
-            return sliders;
+            return sliders.toString();
         };
         this.addBlocks();
         return {
@@ -141,7 +142,7 @@ class Scratch3ChanceBlocks {
             },
 
             {
-                opcode: 'setDistribution',
+                opcode: 'setDice',
                 blockType: BlockType.COMMAND,
                 text: 'set [DICE] sides to [DISTRIBUTION]',
                 arguments: {
@@ -152,7 +153,7 @@ class Scratch3ChanceBlocks {
                     },
                     DISTRIBUTION: {
                         type: ArgumentType.SLIDER,
-                        defaultValue: '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666|1~2~3~4~5~6'
+                        defaultValue: this.runtime.sliderString
                     }
                 }
 
@@ -172,6 +173,7 @@ class Scratch3ChanceBlocks {
 
                 }
             },
+
 
             //check if dice roll is some value
             {
@@ -250,48 +252,14 @@ class Scratch3ChanceBlocks {
                     }
                 }
 
-            }, 
-
-            {
-                opcode: 'numberOfSides',
-                blockType: BlockType.REPORTER,
-                text: 'number of sides [DICE]',
-                arguments: {
-                    DICE: {
-                        type: ArgumentType.STRING,
-                        defaultValue: 'dice1',
-                        menu: 'diceMenu'
-                    }
-                }
             },
+
+            // Extra blocks
 
             {
                 opcode: 'divider',
                 blockType: BlockType.BUTTON,
                 text: 'Extra blocks below'
-            },
-
-            // Set side name dynamically
-            {
-                opcode: 'setSideName',
-                blockType: BlockType.COMMAND,
-                text: 'set side [DICE] [SIDEINDEX] to [SIDENAME]',
-                arguments: {
-                    DICE: {
-                        type: ArgumentType.STRING,
-                        defaultValue: 'dice1',
-                        menu: 'diceMenu'
-                    },
-                    SIDEINDEX: {
-                        type: ArgumentType.STRING,
-                        defaultValue: '(1)',
-                        menu: 'sideIndexMenu'
-                    },
-                    SIDENAME: {
-                        type: ArgumentType.STRING,
-                        defaultValue: 'bananas'
-                    }
-                }
             },
 
             // Block to create new dice and rename or delete existing dice
@@ -315,7 +283,59 @@ class Scratch3ChanceBlocks {
                         defaultValue: 'dice3',
                     }
                 }
-            });
+            },
+
+            // Set RANDOM distribution
+            {
+                opcode: 'setDiceRandom',
+                blockType: BlockType.COMMAND,
+                text: 'change [DICE] sides randomly',
+                arguments: {
+                    DICE: {
+                        type: ArgumentType.STRING,
+                        defaultValue: 'dice1',
+                        menu: 'diceMenu'
+                    }
+
+                }
+            },
+
+            // Set side name dynamically
+            {
+                opcode: 'setSideName',
+                blockType: BlockType.COMMAND,
+                text: 'set side [DICE] [SIDEINDEX] to [SIDENAME]',
+                arguments: {
+                    DICE: {
+                        type: ArgumentType.STRING,
+                        defaultValue: 'dice1',
+                        menu: 'diceMenu'
+                    },
+                    SIDEINDEX: {
+                        type: ArgumentType.STRING,
+                        defaultValue: ' ',
+                        menu: 'sideIndexMenu'
+                    },
+                    SIDENAME: {
+                        type: ArgumentType.STRING,
+                        defaultValue: 'bananas'
+                    }
+                }
+            },
+
+            /* number of sides in a dice (may be not needed)
+            {
+                opcode: 'numberOfSides',
+                blockType: BlockType.REPORTER,
+                text: 'number of sides [DICE]',
+                arguments: {
+                    DICE: {
+                        type: ArgumentType.STRING,
+                        defaultValue: 'dice1',
+                        menu: 'diceMenu'
+                    }
+                }
+            }*/);
     }
 
     // Function to add dice with a given name
@@ -323,13 +343,12 @@ class Scratch3ChanceBlocks {
         this.runtime.dice.push({
             diceName: name,
             value: '1',
-
             strings: ["1", "2", "3", "4", "5", "6"],
             distribution: '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666'
-
         });
     }
 
+//'16.666666,16.666666,16.666666,16.666666,16.666666,16.666666|1~2~3~4~5~6'
 
 
     // Set dice menu dynamically
@@ -353,7 +372,7 @@ class Scratch3ChanceBlocks {
     // Get side index menu
     getSideIndexMenu() {
         let sideIndexShow = [];
-        for(let i = 0; i < this.runtime.sidesInternal.length; i++) {
+        for (let i = 0; i < this.runtime.sidesInternal.length; i++) {
             sideIndexShow.push("(" + (i + 1) + ")");
         }
         return sideIndexShow;
@@ -417,32 +436,28 @@ class Scratch3ChanceBlocks {
     }
 
     // To set the distribution of dice
-    setDistribution(args) {
-
+    setDice(args) {
         const i = this.getDiceIndex(args.DICE);
+        this.runtime.sliderString = args.DISTRIBUTION;
         const splitted = args.DISTRIBUTION.split('|');
         let distribution = splitted[0];
         this.runtime.dice[i].strings = splitted[1].split('~');
         this.runtime.sidesInternal = this.runtime.dice[i].strings;
         this.runtime.dice[i].distribution = distribution;
-
-       
     }
 
     // Generate and set a particular dice roll value based on given side chances
     rollDice(args) {
-
         const i = this.getDiceIndex(args.DICE);
         let distribution = this.runtime.dice[i].distribution;
         let strings = this.runtime.dice[i].strings;
         let sliders = JSON.parse("[" + distribution + "]");
-
         const sliderSums = [sliders[0]];
         for (let i = 1; i < sliders.length; i++) {
             sliderSums.push(sliderSums[sliderSums.length - 1] + sliders[i]);
         }
         let newValue;
-        const randomNumber = random.real(0,100);
+        const randomNumber = random.real(0, 100);
         for (let i = 0; i < sliders.length; i++) {
             if (randomNumber <= sliderSums[i]) {
                 newValue = strings[i];
@@ -450,6 +465,23 @@ class Scratch3ChanceBlocks {
             }
         }
         this.runtime.dice[i].value = newValue;
+    }
+
+
+    // Set random distribution
+    setDiceRandom(args) {
+        const i = this.getDiceIndex(args.DICE);
+        let sumOfArray = 0.0;
+        let numSliders = this.runtime.dice[i].strings.length;
+        let newArray = [];
+        for (let j = 0; j < numSliders; j++) {
+            newArray.push(random.real(0, 100));
+            sumOfArray += newArray[j];
+        }
+        for (let j = 0; j < numSliders; j++) {
+            newArray[j] = (newArray[j] / sumOfArray) * 100.0;
+        }
+        this.runtime.dice[i].distribution = newArray.join(',');
     }
 
     // Set chance of a side of a dice to the given input 
@@ -460,7 +492,7 @@ class Scratch3ChanceBlocks {
         if (args.SIDE.toString().includes('(')) {
             side = parseInt(args.SIDE.split(')')[0].split('(')[1]) - 1;
         } else
-            side = this.getSideIndex(i , args.SIDE);
+            side = this.getSideIndex(i, args.SIDE);
         const chance = Cast.toNumber(args.CHANCE);
         let currentDist = this.runtime.dice[i].distribution;
         const final = this.setValue(currentDist, side, chance);
@@ -475,12 +507,10 @@ class Scratch3ChanceBlocks {
         if (args.SIDE.toString().includes('(')) {
             side = parseInt(args.SIDE.split(')')[0].split('(')[1]) - 1;
         } else
-            side = this.getSideIndex(i , args.SIDE);
+            side = this.getSideIndex(i, args.SIDE);
         let chance = Cast.toNumber(args.CHANCE);
-
         let currentDist = this.runtime.dice[i].distribution;
         const sliders = JSON.parse('[' + currentDist + ']');
-
         let currentValue;
         if (side < sliders.length) {
             currentValue = sliders[side];
@@ -499,10 +529,8 @@ class Scratch3ChanceBlocks {
         if (args.SIDE.toString().includes('(')) {
             side = parseInt(args.SIDE.split(')')[0].split('(')[1]) - 1;
         } else
-
-            side = this.getSideIndex(i , args.SIDE);
+            side = this.getSideIndex(i, args.SIDE);
         const sliders = JSON.parse('[' + this.runtime.dice[i].distribution + ']');
-
         if (side < sliders.length) {
             return Math.round(sliders[side]);
         }
@@ -516,28 +544,27 @@ class Scratch3ChanceBlocks {
         if (args.SIDE.toString().includes('(')) {
             side = args.SIDE.split(' ')[1];
         } else
-            side = this.getSideIndex(i , args.SIDE);
+            side = this.getSideIndex(i, args.SIDE);
         return (side === this.runtime.dice[i].value);
     }
 
-    // Return number of sides in a dice
+    /* Return number of sides in a dice
     numberOfSides(args) {
         const i = this.getDiceIndex(args.DICE);
         return this.runtime.dice[i].strings.length;
-
-    }
+    }*/
 
     // Set side name dynamically
     setSideName(args) {
-         const i = this.getDiceIndex(args.DICE);
-         let sideIndex;
-         if (args.SIDEINDEX.toString().includes('(')) {
-            sideIndex = parseInt(args.SIDEINDEX.split('(')[1].split(')')[0])-1;
-         } else 
+        const i = this.getDiceIndex(args.DICE);
+        let sideIndex;
+        if (args.SIDEINDEX.toString().includes('(')) {
+            sideIndex = parseInt(args.SIDEINDEX.split('(')[1].split(')')[0]) - 1;
+        } else
             sideIndex = args.SIDEINDEX - 1;
-         this.runtime.dice[i].strings[sideIndex] = args.SIDENAME;
-         this.runtime.sidesInternal = this.runtime.dice[i].strings;
-     }
+        this.runtime.dice[i].strings[sideIndex] = args.SIDENAME;
+        this.runtime.sidesInternal = this.runtime.dice[i].strings;
+    }
 }
 
 module.exports = Scratch3ChanceBlocks;
