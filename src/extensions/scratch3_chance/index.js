@@ -142,7 +142,7 @@ class Scratch3ChanceBlocks {
             },
 
             {
-                opcode: 'setDice',
+                opcode: 'setDistribution',
                 blockType: BlockType.COMMAND,
                 text: 'set [DICE] sides to [DISTRIBUTION]',
                 arguments: {
@@ -154,6 +154,8 @@ class Scratch3ChanceBlocks {
                     DISTRIBUTION: {
                         type: ArgumentType.SLIDER,
                         defaultValue: this.runtime.sliderString
+                        //'16.666666,16.666666,16.666666,16.666666,16.666666,16.666666|1~2~3~4~5~6'
+                        
                     }
                 }
 
@@ -453,7 +455,7 @@ class Scratch3ChanceBlocks {
     }
 
     // To set the distribution of dice
-    setDice(args) {
+    setDistribution(args) {
         const i = this.getDiceIndex(args.DICE);
         this.runtime.sliderString = args.DISTRIBUTION;
         const splitted = args.DISTRIBUTION.split('|');
