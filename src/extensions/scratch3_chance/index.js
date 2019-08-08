@@ -27,7 +27,6 @@ class Scratch3ChanceBlocks {
          * The runtime instantiating this block package.
          * @type {Runtime}
          */
-
         this.runtime = runtime;
         this.waitingSounds = {};
         this.runtime.sidesInternal = ["1", "2", "3", "4", "5", "6"];
@@ -42,8 +41,14 @@ class Scratch3ChanceBlocks {
      * @return {object} This object's metadata.
      */
     getInfo() {
+        // starter dice block reporters
+        this.costumeVal = 1;
+        this.soundVal = 1; 
+
+        // all blocks
         this.blocks = [];
-        // Setting chances of all sides proportionately 
+
+        // setting chances of all sides proportionately 
         this.setValue = function(currentDist, side, chance) {
             if (chance >= 100) {
                 chance = 100.0;
@@ -120,6 +125,10 @@ class Scratch3ChanceBlocks {
 
                 diceOptions: {
                     items: ['create', 'rename', 'delete']
+                },
+
+                starterDiceMenu: {
+                     items: ['costume#', 'sound#']
                 }
             }
         };
@@ -158,6 +167,20 @@ class Scratch3ChanceBlocks {
                     DISTRIBUTION: {
                         type: ArgumentType.SLIDER,
                         defaultValue: '50.0,50.0|1~2'
+                    }
+                }
+
+            },
+
+            {
+                opcode: 'costumeSoundVal',
+                blockType: BlockType.REPORTER,
+                text: '[STARTERDICE]',
+                arguments: {
+                    STARTERDICE: {
+                        type: ArgumentType.NUMBER,
+                        defaultValue: 'costume#',
+                        menu: 'starterDiceMenu'
                     }
                 }
 
@@ -682,19 +705,10 @@ class Scratch3ChanceBlocks {
 
             if (costumeIndex !== -1) {
                 target.setCostume(costumeIndex);
-            } else if (requestedCostume === 'next costume') {
-                target.setCostume(target.currentCostume + 1);
-            } else if (requestedCostume === 'previous costume') {
-                target.setCostume(target.currentCostume - 1);
-                // Try to cast the string to a number (and treat it as a costume index)
-                // Pure whitespace should not be treated as a number
-                // Note: isNaN will cast the string to a number before checking if it's NaN
             } else if (!(isNaN(requestedCostume) || Cast.isWhiteSpace(requestedCostume))) {
                 target.setCostume(optZeroIndex ? Number(requestedCostume) : Number(requestedCostume) - 1);
             }
         }
-
-        // Per 2.0, 'switch costume' can't start threads even in the Stage.
         return [];
     }
 
@@ -704,6 +718,7 @@ class Scratch3ChanceBlocks {
         let distribution = args.DISTRIBUTION.split('|');
         let strings = distribution[1].split('~');
         let newValue = this.getChance(distribution, strings);
+        this.soundVal = newValue;
         this._playSound(args, util, newValue);
     }
 
@@ -723,6 +738,13 @@ class Scratch3ChanceBlocks {
             return;
         }
         this.waitingSounds[targetId].delete(soundId);
+    }
+
+    costumeSoundVal(args, util){
+        if(args.STARTERDICE === 'costume#'){
+            return (util.target.currentCostume + 1);
+        } else
+            return this.soundVal;
     }
 
 }
