@@ -390,7 +390,7 @@ class Scratch3ChanceBlocks {
                         defaultValue: 'bananas'
                     }
                 }
-            }
+            },
             /*,
             {
                 opcode: 'vizMonitor',
@@ -398,7 +398,7 @@ class Scratch3ChanceBlocks {
                 text: 'dice1 current sides'
             }*/
 
-            /* number of sides in a dice (may be not needed)
+            //number of sides in a dice 
             {
                 opcode: 'numberOfSides',
                 blockType: BlockType.REPORTER,
@@ -410,7 +410,7 @@ class Scratch3ChanceBlocks {
                         menu: 'diceMenu'
                     }
                 }
-            }*/
+            }
         );
     }
 
@@ -624,11 +624,11 @@ class Scratch3ChanceBlocks {
         return (side === this.runtime.dice[i].value);
     }
 
-    /* Return number of sides in a dice
+    //Return number of sides in a dice
     numberOfSides(args) {
         const i = this.getDiceIndex(args.DICE);
         return this.runtime.dice[i].strings.length;
-    }*/
+    }
 
     // Set side name dynamically
     setSideName(args) {
