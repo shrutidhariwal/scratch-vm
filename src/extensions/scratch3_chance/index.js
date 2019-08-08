@@ -19,6 +19,8 @@ const menuIconURI = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZ
 // eslint-disable-next-line max-len
 const blockIconURI = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBzdHlsZT0iaGVpZ2h0OiA1MTJweDsgd2lkdGg6IDUxMnB4OyI+PHBhdGggZD0iTTAgMGg1MTJ2NTEySDB6IiBmaWxsPSJ0cmFuc3BhcmVudCIgZmlsbC1vcGFjaXR5PSIwIj48L3BhdGg+PGcgY2xhc3M9IiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCwwKSIgc3R5bGU9InRvdWNoLWFjdGlvbjogbm9uZTsiPjxwYXRoIGQ9Ik0xMzguNzk4IDM1LjM0MkwyOC43MyAxMTQuMjY4bDk1Ljc3NyAyOS4wOTUgMTExLjMwNS04Ny4wOS05Ny4wMTQtMjAuOTN6bTExMi45ODYgMzEuMDgybC0xMTguMDQ3IDg5Ljk2IDUxLjA3IDEzMS4xMDIgOC41MzQtNy40NTUgNC4yMy0xNS43MDhhMTguMzM4IDEzLjEwMiA3Ni44NjMgMCAxLTkuMDgtMjAuNDUgMTguMzM4IDEzLjEwMiA3Ni44NjMgMCAxIDEwLjk5Ny0xMy43MjcgMTguMzM4IDEzLjEwMiA3Ni44NjMgMCAxIDMuNjIuNTMgMTguMzM4IDEzLjEwMiA3Ni44NjMgMCAxIDMuMTEzIDEuNTQ0bDcuOTQtMjkuNDhhOSA5IDAgMCAxIC4zNTMtMS4wNCA5IDkgMCAwIDEgLjA1OC0uMTI4IDkgOSAwIDAgMSAuMzItLjY4NSA5IDkgMCAwIDEgLjA5LS4xNTMgOSA5IDAgMCAxIC4zNy0uNjI1IDkgOSAwIDAgMSAuNTM0LS43MjMgOSA5IDAgMCAxIC4wNjYtLjA3NCA5IDkgMCAwIDEgLjU0LS41OTQgOSA5IDAgMCAxIC42NS0uNTkzIDkgOSAwIDAgMSAuMDA0LS4wMDIgOSA5IDAgMCAxIC40Ni0uMzQyIDkgOSAwIDAgMSAuMjY2LS4xOTcgOSA5IDAgMCAxIC41MDItLjMgOSA5IDAgMCAxIC4yNy0uMTU3IDkgOSAwIDAgMSAuNDQtLjIwOCA5IDkgMCAwIDEgLjM4LS4xNzggOSA5IDAgMCAxIC40MzctLjE1MiA5IDkgMCAwIDEgLjQxLS4xNDMgOSA5IDAgMCAxIC40MDQtLjEgOSA5IDAgMCAxIC40Ny0uMTE0IDkgOSAwIDAgMSAuNTEtLjA3IDkgOSAwIDAgMSAuMzctLjA1IDkgOSAwIDAgMSAuMDEgMCA5IDkgMCAwIDEgLjAxLS4wMDNsMzMuNjI0LTIuODczYTE4LjMzOCAxMy4xMDIgNzYuODYzIDAgMSAxMC4zMjYtOS43NzcgMTguMzM4IDEzLjEwMiA3Ni44NjMgMCAxIDMuNjIyLjUzIDE4LjMzOCAxMy4xMDIgNzYuODYzIDAgMSA4LjUyNyA3LjMyN2wxMy4wNDMtMS4xMTMtMzkuNDQyLTEyMy43ODN6TTEzNy4yNSA3NC4wM2E5LjggMTkuNzcgNzcuOTE2IDAgMSAxMi43OTggOC43MzQgOS44IDE5Ljc3IDc3LjkxNiAwIDEtMjEuOTM4IDExLjk5OCA5LjggMTkuNzcgNzcuOTE2IDAgMS0xNi41Ny04LjYwMiA5LjggMTkuNzcgNzcuOTE2IDAgMSAyMS45MzgtMTIgOS44IDE5Ljc3IDc3LjkxNiAwIDEgMy43Ny0uMTN6bTEwMC4yMjggMjMuNTE3YTE4LjMzOCAxMy4xMDIgNzYuODYzIDAgMSAuMDAyIDAgMTguMzM4IDEzLjEwMiA3Ni44NjMgMCAxIDMuNjIuNTMgMTguMzM4IDEzLjEwMiA3Ni44NjMgMCAxIDEyLjExMiAyMS45NCAxOC4zMzggMTMuMTAyIDc2Ljg2MyAwIDEtMTQuNjE3IDEzLjE5NiAxOC4zMzggMTMuMTAyIDc2Ljg2MyAwIDEtMTIuMTE0LTIxLjk0IDE4LjMzOCAxMy4xMDIgNzYuODYzIDAgMSAxMC45OTgtMTMuNzI2ek0yNC4yMiAxMzEuNzFsNDYuOTkyIDExNC4xMjQgOTQuMjM2IDQwLjM4LTQ1Ljk4OC0xMjUuNTctOTUuMjQtMjguOTM1em0xNDcuODg2IDE3LjQzYTE4LjMzOCAxMy4xMDIgNzYuODYzIDAgMSAzLjYyMi41MjggMTguMzM4IDEzLjEwMiA3Ni44NjMgMCAxIDEyLjExIDIxLjk0IDE4LjMzOCAxMy4xMDIgNzYuODYzIDAgMS0xNC42MTYgMTMuMTk3IDE4LjMzOCAxMy4xMDIgNzYuODYzIDAgMS0xMi4xMTItMjEuOTQgMTguMzM4IDEzLjEwMiA3Ni44NjMgMCAxIDEwLjk5Ni0xMy43MjZ6bS03NS4xMjMgMTMuMDE2YTE5LjQ1NCA5LjEzNCA1OS4yNTQgMCAxIDE2Ljk1NSAxNS4wNzggMTkuNDU0IDkuMTM0IDU5LjI1NCAwIDEtLjQyNSAxOS40ODVBMTkuNDU0IDkuMTM0IDU5LjI1NCAwIDEgOTUuNiAxODEuNzhhMTkuNDU0IDkuMTM0IDU5LjI1NCAwIDEgLjQyNC0xOS40OCAxOS40NTQgOS4xMzQgNTkuMjU0IDAgMSAuOTYtLjE0NHptMjYzLjM5MyA0MC4yMWwtMTEyLjEwMiA5LjU3NyAxMTMuNzYyIDc5LjkyNiAxMTMuNTk4LTE2Ljk1Ni0xMTUuMjU4LTcyLjU1ek03MC44MiAyMTIuMDIyQTE5LjQ1NCA5LjEzNCA1OS4yNTQgMCAxIDg3Ljc3NyAyMjcuMWExOS40NTQgOS4xMzQgNTkuMjU0IDAgMS0uNDI1IDE5LjQ4NCAxOS40NTQgOS4xMzQgNTkuMjU0IDAgMS0xNy45MTMtMTQuOTM4IDE5LjQ1NCA5LjEzNCA1OS4yNTQgMCAxIC40MjUtMTkuNDgyIDE5LjQ1NCA5LjEzNCA1OS4yNTQgMCAxIC45Ni0uMTR6bTE1Ny4zNzggNy44MTNMMTg2LjY2IDM3NC4wMjNsMTE1LjYxNiA5OS40NTQgNDcuMTQ3LTE2OC40Ny0xMjEuMjI1LTg1LjE3em0xMjYuOTg3IDExLjE2OGEyMS43NiA4Ljg5OCAxNS4yNjcgMCAxIDE5LjY5MyA0Ljc4MyAyMS43NiA4Ljg5OCAxNS4yNjcgMCAxIDcuNjA3IDE0LjI0NCAyMS43NiA4Ljg5OCAxNS4yNjcgMCAxLTI4Ljg4Ni0zLjE4MiAyMS43NiA4Ljg5OCAxNS4yNjcgMCAxLTcuNjEtMTQuMjQ0IDIxLjc2IDguODk4IDE1LjI2NyAwIDEgOS4xOTUtMS42ek00ODcuNzggMjkxLjNMMzY2LjkgMzA5LjM0M2wtNDYuODIzIDE2Ny4zMTYgMTE2LjI5Ny0zMS43N0w0ODcuNzggMjkxLjN6bS0xODEuODA4IDEwLjhhMjUuODM0IDE1LjU3MyA4NC4yNzcgMCAxIDQuMjM4Ljk0MyAyNS44MzQgMTUuNTczIDg0LjI3NyAwIDEgMTIuODczIDMxLjcyIDI1LjgzNCAxNS41NzMgODQuMjc3IDAgMS0xOC4xMDUgMTcuODkzIDI1LjgzNCAxNS41NzMgODQuMjc3IDAgMS0xMi44NzQtMzEuNzIgMjUuODM0IDE1LjU3MyA4NC4yNzcgMCAxIDEzLjg2OC0xOC44MzZ6bTE1NC4wODYgMTEuNjM2YTEzLjIzNyAyMS45NiAyOC42MiAwIDEgNy42NzMgNC4xMyAxMy4yMzcgMjEuOTYgMjguNjIgMCAxLTYuMTc2IDI4LjQzNSAxMy4yMzcgMjEuOTYgMjguNjIgMCAxLTIxLjI4NyAzLjg3OCAxMy4yMzcgMjEuOTYgMjguNjIgMCAxIDYuMTc1LTI4LjQzNCAxMy4yMzcgMjEuOTYgMjguNjIgMCAxIDEzLjYxNi04LjAwOHpNMzkxLjM2MiAzMjQuNGExMy4yMzcgMjEuOTYgMjguNjIgMCAxIDcuNjcyIDQuMTMgMTMuMjM3IDIxLjk2IDI4LjYyIDAgMS02LjE3NiAyOC40MzUgMTMuMjM3IDIxLjk2IDI4LjYyIDAgMS0yMS4yODcgMy44NzcgMTMuMjM3IDIxLjk2IDI4LjYyIDAgMSA2LjE3Ny0yOC40MzQgMTMuMjM3IDIxLjk2IDI4LjYyIDAgMSAxMy42MTUtOC4wMDh6bS0xNzMuOTk2IDEzLjMwNWEyNS44MzQgMTUuNTczIDg0LjI3NyAwIDEgNC4yNC45NDUgMjUuODM0IDE1LjU3MyA4NC4yNzcgMCAxIDEyLjg3MiAzMS43MiAyNS44MzQgMTUuNTczIDg0LjI3NyAwIDEtMTguMTA2IDE3Ljg5NCAyNS44MzQgMTUuNTczIDg0LjI3NyAwIDEtMTIuODczLTMxLjcyIDI1LjgzNCAxNS41NzMgODQuMjc3IDAgMSAxMy44NjYtMTguODR6bTIxMi4yNzggNjAuODdhMTMuMjM3IDIxLjk2IDI4LjYyIDAgMSA3LjY3IDQuMTMgMTMuMjM3IDIxLjk2IDI4LjYyIDAgMS02LjE3NCAyOC40MzQgMTMuMjM3IDIxLjk2IDI4LjYyIDAgMS0yMS4yODcgMy44NzYgMTMuMjM3IDIxLjk2IDI4LjYyIDAgMSA2LjE3NS0yOC40MzQgMTMuMjM3IDIxLjk2IDI4LjYyIDAgMSAxMy42MTYtOC4wMDh6bS03MC4zMzIgMTkuNDg4YTEzLjIzNyAyMS45NiAyOC42MiAwIDEgNy42NyA0LjEzMiAxMy4yMzcgMjEuOTYgMjguNjIgMCAxLTYuMTc0IDI4LjQzNCAxMy4yMzcgMjEuOTYgMjguNjIgMCAxLTIxLjI4NyAzLjg3NCAxMy4yMzcgMjEuOTYgMjguNjIgMCAxIDYuMTc2LTI4LjQzNCAxMy4yMzcgMjEuOTYgMjguNjIgMCAxIDEzLjYxNi04LjAwN3oiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMSI+PC9wYXRoPjwvZz48L3N2Zz4=';
 
+const STORE_WAITING = true;
+
 class Scratch3ChanceBlocks {
     constructor(runtime) {
         /**
@@ -39,8 +41,6 @@ class Scratch3ChanceBlocks {
      * @return {object} This object's metadata.
      */
     getInfo() {
-
-        //this.sidesInternal = ["1", "2", "3", "4", "5", "6"];
         this.blocks = [];
         // Setting chances of all sides proportionately 
         this.setValue = function(currentDist, side, chance) {
@@ -128,17 +128,45 @@ class Scratch3ChanceBlocks {
 
         this.blocks.push(
 
+            //Button
+
             {
-                opcode: 'diceVal',
-                blockType: BlockType.REPORTER,
-                text: '[DICE]',
+                opcode: 'dicePlaygroundBlocks',
+                blockType: BlockType.BUTTON,
+                text: 'Starter Dice Blocks'
+            },
+
+            {
+                opcode: 'setCostumeTo',
+                blockType: BlockType.COMMAND,
+                text: 'switch costume to [DISTRIBUTION]',
                 arguments: {
-                    DICE: {
-                        type: ArgumentType.STRING,
-                        defaultValue: 'dice1',
-                        menu: 'diceMenu'
+                    DISTRIBUTION: {
+                        type: ArgumentType.SLIDER,
+                        defaultValue: '50.0,50.0|1~2'
                     }
                 }
+
+            },
+
+            {
+                opcode: 'startSoundProb',
+                blockType: BlockType.COMMAND,
+                text: 'start sound [DISTRIBUTION]',
+                arguments: {
+                    DISTRIBUTION: {
+                        type: ArgumentType.SLIDER,
+                        defaultValue: '50.0,50.0|1~2'
+                    }
+                }
+
+            },
+
+            // Button
+            {
+                opcode: 'customDiceBlocks',
+                blockType: BlockType.BUTTON,
+                text: 'Custom Dice Blocks'
             },
 
             {
@@ -154,8 +182,6 @@ class Scratch3ChanceBlocks {
                     DISTRIBUTION: {
                         type: ArgumentType.SLIDER,
                         defaultValue: this.runtime.sliderString
-                        //'16.666666,16.666666,16.666666,16.666666,16.666666,16.666666|1~2~3~4~5~6'
-                        
                     }
                 }
 
@@ -176,6 +202,18 @@ class Scratch3ChanceBlocks {
                 }
             },
 
+            {
+                opcode: 'diceVal',
+                blockType: BlockType.REPORTER,
+                text: '[DICE]',
+                arguments: {
+                    DICE: {
+                        type: ArgumentType.STRING,
+                        defaultValue: 'dice1',
+                        menu: 'diceMenu'
+                    }
+                }
+            },
 
             //check if dice roll is some value
             {
@@ -194,7 +232,55 @@ class Scratch3ChanceBlocks {
                         menu: 'sideMenu'
                     }
                 }
-            }, {
+            }, 
+
+            {
+                opcode: 'changeChance',
+                blockType: BlockType.COMMAND,
+                text: 'change [DICE] [SIDE] chance by [CHANCE]',
+                arguments: {
+                    DICE: {
+                        type: ArgumentType.STRING,
+                        defaultValue: 'dice1',
+                        menu: 'diceMenu'
+                    },
+                    SIDE: {
+                        type: ArgumentType.STRING,
+                        defaultValue: ' ',
+                        menu: 'sideMenu'
+                    },
+                    CHANCE: {
+                        type: ArgumentType.NUMBER,
+                        defaultValue: 10
+                    }
+                }
+
+            },
+
+            // Block to set the chance of a particular side of a dice.
+            {
+                opcode: 'setChance',
+                blockType: BlockType.COMMAND,
+                text: 'set [DICE] [SIDE] chance to [CHANCE]',
+                arguments: {
+                    DICE: {
+                        type: ArgumentType.STRING,
+                        defaultValue: 'dice1',
+                        menu: 'diceMenu'
+                    },
+                    SIDE: {
+                        type: ArgumentType.STRING,
+                        defaultValue: ' ',
+                        menu: 'sideMenu'
+                    },
+                    CHANCE: {
+                        type: ArgumentType.NUMBER,
+                        defaultValue: 10
+                    }
+                }
+            }, 
+
+            {
                 opcode: 'chanceOfReporter',
                 blockType: BlockType.REPORTER,
                 text: 'chance of [DICE] [SIDE]',
@@ -212,56 +298,13 @@ class Scratch3ChanceBlocks {
                 }
 
             },
-            // Block to set the chance of a particular side of a dice.
-            {
-                opcode: 'setChance',
-                blockType: BlockType.COMMAND,
-                text: 'set chance of [DICE] [SIDE] to [CHANCE]',
-                arguments: {
-                    DICE: {
-                        type: ArgumentType.STRING,
-                        defaultValue: 'dice1',
-                        menu: 'diceMenu'
-                    },
-                    SIDE: {
-                        type: ArgumentType.STRING,
-                        defaultValue: ' ',
-                        menu: 'sideMenu'
-                    },
-                    CHANCE: {
-                        type: ArgumentType.NUMBER,
-                        defaultValue: 10
-                    }
-                }
-            }, {
-                opcode: 'changeChance',
-                blockType: BlockType.COMMAND,
-                text: 'change chance of [DICE] [SIDE] by [CHANCE]',
-                arguments: {
-                    DICE: {
-                        type: ArgumentType.STRING,
-                        defaultValue: 'dice1',
-                        menu: 'diceMenu'
-                    },
-                    SIDE: {
-                        type: ArgumentType.STRING,
-                        defaultValue: ' ',
-                        menu: 'sideMenu'
-                    },
-                    CHANCE: {
-                        type: ArgumentType.NUMBER,
-                        defaultValue: 10
-                    }
-                }
-
-            },
 
             // Extra blocks
 
             {
-                opcode: 'divider',
+                opcode: 'additionalBlocks',
                 blockType: BlockType.BUTTON,
-                text: 'Extra blocks below'
+                text: 'Additional Dice Blocks'
             },
 
             // Block to create new dice and rename or delete existing dice
@@ -323,24 +366,13 @@ class Scratch3ChanceBlocks {
                         defaultValue: 'bananas'
                     }
                 }
-            },
-            {
-                opcode: 'setCostumeTo',
-                blockType: BlockType.COMMAND,
-                text: 'switch costume to [DISTRIBUTION]',
-                arguments: {
-                    DISTRIBUTION: {
-                        type: ArgumentType.SLIDER,
-                        defaultValue: '50.0,50.0|costume1~costume2'
-                    }
-                }
-
-            },
+            }
+            /*,
             {
                 opcode: 'vizMonitor',
                 blockType: BlockType.REPORTER,
                 text: 'dice1 current sides'
-            }
+            }*/
 
             /* number of sides in a dice (may be not needed)
             {
@@ -354,7 +386,8 @@ class Scratch3ChanceBlocks {
                         menu: 'diceMenu'
                     }
                 }
-            }*/);
+            }*/
+        );
     }
 
     // Function to add dice with a given name
@@ -367,7 +400,7 @@ class Scratch3ChanceBlocks {
         });
     }
 
-//'16.666666,16.666666,16.666666,16.666666,16.666666,16.666666|1~2~3~4~5~6'
+    //'16.666666,16.666666,16.666666,16.666666,16.666666,16.666666|1~2~3~4~5~6'
 
 
     // Set dice menu dynamically
@@ -585,7 +618,7 @@ class Scratch3ChanceBlocks {
         this.runtime.sidesInternal = this.runtime.dice[i].strings;
     }
 
-    vizMonitor() {
+    /*vizMonitor() {
         const sliders = JSON.parse('[' + this.runtime.dice[0].distribution + ']');
         const blockList = ['▁', '▂', '▃', '▅', '▆', '▇'];
         const result = [];
@@ -596,31 +629,49 @@ class Scratch3ChanceBlocks {
         }
         return result.join(' ');
 
-    }
+    }*/
 
-    setCostumeTo(args, util) {
-        let distribution = args.DISTRIBUTION.split('|');
-        let strings = distribution[1].split('~');
+    /*getCostumeInfo(util) {
+        let costumeInfo = util.target.getCostumes();
+        let costumes = costumeInfo.length;
+        let initialChance = Math.round(100.0 / costumes);
+        let initialDist = [];
+        let costumeNames = [];
+        for (let i = 0; i < costumes; i++) {
+            initialDist.push(initialChance);
+            costumeNames.push(costumeInfo[i].name);
+        }
+        this.runtime.getCostumesOfSprite = initialDist.join(',') + '|' + costumeNames.join('~');
+    }*/
+
+
+    getChance(distribution,strings){
         let sliders = JSON.parse('[' + distribution[0] + ']');
-        //console.log(util.target.getCostumes());
         let newValue;
         const sliderSums = [sliders[0]];
         for (let i = 1; i < sliders.length; i++) {
             sliderSums.push(sliderSums[sliderSums.length - 1] + sliders[i]);
         }
-        const randomNumber = Math.random() * 100.0;
+        const randomNumber = random.real(0, 100);
         for (let i = 0; i < sliders.length; i++) {
             if (randomNumber <= sliderSums[i]) {
                 newValue = strings[i];
                 break;
             }
         }
+        return newValue;
+    }
     
-        this._setCostume(util.target, newValue);
+    //costume
 
+    setCostumeTo(args, util) {
+        let distribution = args.DISTRIBUTION.split('|');
+        let strings = distribution[1].split('~');
+        let newValue = this.getChance(distribution,strings);
+        this._setCostume(util.target, newValue);
     }
 
-    _setCostume (target, requestedCostume, optZeroIndex) {
+    _setCostume(target, requestedCostume, optZeroIndex) {
         if (typeof requestedCostume === 'number') {
             // Numbers should be treated as costume indices, always
             target.setCostume(optZeroIndex ? requestedCostume : requestedCostume - 1);
@@ -634,9 +685,9 @@ class Scratch3ChanceBlocks {
                 target.setCostume(target.currentCostume + 1);
             } else if (requestedCostume === 'previous costume') {
                 target.setCostume(target.currentCostume - 1);
-            // Try to cast the string to a number (and treat it as a costume index)
-            // Pure whitespace should not be treated as a number
-            // Note: isNaN will cast the string to a number before checking if it's NaN
+                // Try to cast the string to a number (and treat it as a costume index)
+                // Pure whitespace should not be treated as a number
+                // Note: isNaN will cast the string to a number before checking if it's NaN
             } else if (!(isNaN(requestedCostume) || Cast.isWhiteSpace(requestedCostume))) {
                 target.setCostume(optZeroIndex ? Number(requestedCostume) : Number(requestedCostume) - 1);
             }
@@ -645,6 +696,16 @@ class Scratch3ChanceBlocks {
         // Per 2.0, 'switch costume' can't start threads even in the Stage.
         return [];
     }
+
+    //sound
+
+    startSoundProb(args,util){
+        let distribution = args.DISTRIBUTION.split('|');
+        let strings = distribution[1].split('~');
+        let newValue = this.getChance(distribution,strings);
+        //this._playSound(args, util, STORE_WAITING, newValue);
+    }
+
 }
 
 module.exports = Scratch3ChanceBlocks;
