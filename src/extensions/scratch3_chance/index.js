@@ -1,6 +1,6 @@
 const ArgumentType = require('../../extension-support/argument-type');
 const BlockType = require('../../extension-support/block-type');
-const { Random } = require("random-js");
+const { Random } = require('random-js');
 const random = new Random();
 const Cast = require('../../util/cast');
 const formatMessage = require('format-message');
@@ -31,7 +31,7 @@ class Scratch3ChanceBlocks {
         this.waitingSounds = {};
         this.runtime.sidesInternal = ["1", "2", "3", "4", "5", "6"];
         this.runtime.dice = [];
-        this.runtime.sliderString = '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666|1~2~3~4~5~6';
+        //this.runtime.sliderString = '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666|1~2~3~4~5~6';
         //initializing
         this.addDiceObject('dice1');
         this.addDiceObject('dice2');
@@ -41,13 +41,13 @@ class Scratch3ChanceBlocks {
      * @return {object} This object's metadata.
      */
     getInfo() {
-        // starter dice block reporters
+        /* starter dice block reporters
         this.costumeVal = 1;
-        this.soundVal = 1; 
+        this.soundVal = 1; */
 
         // all blocks
         this.blocks = [];
-
+        this.runtime.sliderString = this.runtime.dice[0].distribution + '|' + this.runtime.dice[0].strings.join('~');
         // setting chances of all sides proportionately 
         this.setValue = function(currentDist, side, chance) {
             if (chance >= 100) {
@@ -125,11 +125,11 @@ class Scratch3ChanceBlocks {
 
                 diceOptions: {
                     items: ['create', 'rename', 'delete']
-                },
+                }/*,
 
                 starterDiceMenu: {
                      items: ['costume#', 'sound#']
-                }
+                }*/
             }
         };
     }
@@ -138,7 +138,7 @@ class Scratch3ChanceBlocks {
 
         this.blocks.push(
 
-            //Button
+            /*Button
 
             {
                 opcode: 'dicePlaygroundBlocks',
@@ -191,12 +191,12 @@ class Scratch3ChanceBlocks {
                 opcode: 'customDiceBlocks',
                 blockType: BlockType.BUTTON,
                 text: 'Custom Dice Blocks'
-            },
+            },*/
 
             {
                 opcode: 'setDistribution',
                 blockType: BlockType.COMMAND,
-                text: 'set [DICE] sides to [DISTRIBUTION]',
+                text: 'set [DICE] to [DISTRIBUTION]',
                 arguments: {
                     DICE: {
                         type: ArgumentType.STRING,
@@ -211,6 +211,7 @@ class Scratch3ChanceBlocks {
 
             },
 
+           /*
             //update dice reporters based on distribution
             {
                 opcode: 'rollDice',
@@ -224,12 +225,12 @@ class Scratch3ChanceBlocks {
                     }
 
                 }
-            },
+            },*/
 
             {
                 opcode: 'diceVal',
                 blockType: BlockType.REPORTER,
-                text: '[DICE]',
+                text: 'roll [DICE]',
                 arguments: {
                     DICE: {
                         type: ArgumentType.STRING,
@@ -261,7 +262,7 @@ class Scratch3ChanceBlocks {
             {
                 opcode: 'changeChance',
                 blockType: BlockType.COMMAND,
-                text: 'change [DICE] [SIDE] chance by [CHANCE]',
+                text: 'change [DICE] [SIDE] by [CHANCE]%',
                 arguments: {
                     DICE: {
                         type: ArgumentType.STRING,
@@ -285,7 +286,7 @@ class Scratch3ChanceBlocks {
             {
                 opcode: 'setChance',
                 blockType: BlockType.COMMAND,
-                text: 'set [DICE] [SIDE] chance to [CHANCE]',
+                text: 'set [DICE] [SIDE] to [CHANCE]%',
                 arguments: {
                     DICE: {
                         type: ArgumentType.STRING,
@@ -307,7 +308,7 @@ class Scratch3ChanceBlocks {
             {
                 opcode: 'chanceOfReporter',
                 blockType: BlockType.REPORTER,
-                text: 'chance of [DICE] [SIDE]',
+                text: '[DICE] [SIDE]%',
                 arguments: {
                     DICE: {
                         type: ArgumentType.STRING,
@@ -358,7 +359,7 @@ class Scratch3ChanceBlocks {
             {
                 opcode: 'setDiceRandom',
                 blockType: BlockType.COMMAND,
-                text: 'change [DICE] sides randomly',
+                text: 'set [DICE] to random',
                 arguments: {
                     DICE: {
                         type: ArgumentType.STRING,
@@ -373,7 +374,7 @@ class Scratch3ChanceBlocks {
             {
                 opcode: 'setSideName',
                 blockType: BlockType.COMMAND,
-                text: 'set side [DICE] [SIDEINDEX] to [SIDENAME]',
+                text: 'name [DICE][SIDEINDEX] to [SIDENAME]',
                 arguments: {
                     DICE: {
                         type: ArgumentType.STRING,
@@ -508,21 +509,38 @@ class Scratch3ChanceBlocks {
     // current dice roll reporter
     diceVal(args) {
         const i = this.getDiceIndex(args.DICE);
+        let distribution = this.runtime.dice[i].distribution;
+        let strings = this.runtime.dice[i].strings;
+        let sliders = JSON.parse("[" + distribution + "]");
+        const sliderSums = [sliders[0]];
+        for (let i = 1; i < sliders.length; i++) {
+            sliderSums.push(sliderSums[sliderSums.length - 1] + sliders[i]);
+        }
+        let newValue;
+        const randomNumber = random.real(0, 100);
+        for (let i = 0; i < sliders.length; i++) {
+            if (randomNumber <= sliderSums[i]) {
+                newValue = strings[i];
+                break;
+            }
+        }
+        this.runtime.dice[i].value = newValue;
         return this.runtime.dice[i].value;
     }
 
+    
     // To set the distribution of dice
     setDistribution(args) {
         const i = this.getDiceIndex(args.DICE);
-        this.runtime.sliderString = args.DISTRIBUTION;
         const splitted = args.DISTRIBUTION.split('|');
         let distribution = splitted[0];
         this.runtime.dice[i].strings = splitted[1].split('~');
         this.runtime.sidesInternal = this.runtime.dice[i].strings;
         this.runtime.dice[i].distribution = distribution;
-    }
+        this.runtime.requestToolboxExtensionsUpdate();
+    } 
 
-    // Generate and set a particular dice roll value based on given side chances
+   /* // Generate and set a particular dice roll value based on given side chances
     rollDice(args) {
         const i = this.getDiceIndex(args.DICE);
         let distribution = this.runtime.dice[i].distribution;
@@ -542,7 +560,7 @@ class Scratch3ChanceBlocks {
         }
         this.runtime.dice[i].value = newValue;
     }
-
+*/
 
     // Set random distribution
     setDiceRandom(args) {
@@ -558,6 +576,7 @@ class Scratch3ChanceBlocks {
             newArray[j] = (newArray[j] / sumOfArray) * 100.0;
         }
         this.runtime.dice[i].distribution = newArray.join(',');
+        this.runtime.requestToolboxExtensionsUpdate();
     }
 
     // Set chance of a side of a dice to the given input 
@@ -573,6 +592,7 @@ class Scratch3ChanceBlocks {
         let currentDist = this.runtime.dice[i].distribution;
         const final = this.setValue(currentDist, side, chance);
         this.runtime.dice[i].distribution = final;
+        this.runtime.requestToolboxExtensionsUpdate();
     }
 
     // Chance chance of a side of a dice by the given input 
@@ -596,6 +616,7 @@ class Scratch3ChanceBlocks {
         chance += currentValue;
         const final = this.setValue(currentDist, side, chance);
         this.runtime.dice[i].distribution = final;
+        this.runtime.requestToolboxExtensionsUpdate();
     }
 
     // Return current chance of a side in a dice
@@ -618,10 +639,11 @@ class Scratch3ChanceBlocks {
         const i = this.getDiceIndex(args.DICE);
         let side;
         if (args.SIDE.toString().includes('(')) {
-            side = args.SIDE.split(' ')[1];
+            side = this.runtime.dice[i].strings[parseInt(args.SIDE.split('(')[1].split(')')[0]) - 1];
         } else
             side = this.getSideIndex(i, args.SIDE);
         return (side === this.runtime.dice[i].value);
+
     }
 
     //Return number of sides in a dice
@@ -640,6 +662,7 @@ class Scratch3ChanceBlocks {
             sideIndex = args.SIDEINDEX - 1;
         this.runtime.dice[i].strings[sideIndex] = args.SIDENAME;
         this.runtime.sidesInternal = this.runtime.dice[i].strings;
+        this.runtime.requestToolboxExtensionsUpdate();
     }
 
     /*vizMonitor() {
@@ -668,7 +691,7 @@ class Scratch3ChanceBlocks {
         this.runtime.getCostumesOfSprite = initialDist.join(',') + '|' + costumeNames.join('~');
     }*/
 
-
+/*
     getChance(distribution, strings) {
         let sliders = JSON.parse('[' + distribution[0] + ']');
         let newValue;
@@ -686,6 +709,7 @@ class Scratch3ChanceBlocks {
         return newValue;
     }
 
+    
     //costume
 
     setCostumeTo(args, util) {
@@ -745,7 +769,7 @@ class Scratch3ChanceBlocks {
             return (util.target.currentCostume + 1);
         } else
             return this.soundVal;
-    }
+    }*/
 
 }
 
