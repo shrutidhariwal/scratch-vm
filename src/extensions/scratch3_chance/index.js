@@ -657,7 +657,7 @@ class Scratch3ChanceBlocks {
             }
         }
         else {
-            alert ('Cannot update state dice');
+            alert ('Cannot update state dice.');
         }
     }
 
@@ -680,7 +680,7 @@ class Scratch3ChanceBlocks {
                     markovChain[word].push(arr[x + 1].toLowerCase().replace(/[\W_]/, ""));
                 }
             }
-            newDist = makeDice(markovChain[state]);
+            newDist = makeDice(markovChain[state.toLowerCase()]);
             function makeDice(markovArr) {
                 for (let i = 0; i < markovArr.length; i++) {
                     let num = markovArr[i];
