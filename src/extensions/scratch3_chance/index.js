@@ -4,7 +4,7 @@ const { Random } = require('random-js');
 const random = new Random();
 const Cast = require('../../util/cast');
 const formatMessage = require('format-message');
-const Variable = require('../../engine/variable');
+const TargetType = require('../../extension-support/target-type');
 
 /**
  * Icon svg to be displayed in the blocks category menu, encoded as a data URI.
@@ -27,8 +27,11 @@ class Scratch3ChanceBlocks {
          * The runtime instantiating this block package.
          * @type {Runtime}
          */
+
         this.runtime = runtime;
-        this.runtime.sidesInternal = ["1", "2", "3", "4", "5", "6"];
+
+        // dice
+        this.runtime.sidesInternal = ['1', '2', '3', '4', '5', '6'];
         this.runtime.dice = [];
         this.runtime.selectedDice = 0;
         this.runtime.selectedSideVal = {};
@@ -36,15 +39,44 @@ class Scratch3ChanceBlocks {
         this.runtime.selectedSideVal['setChance'] = 0;
         this.runtime.selectedSideVal['changeChance'] = 0;
         this.runtime.selectedSideVal['chanceOfReporter'] = 0;
-        //markov
+
+        // markov
         this.runtime.dataDice = 0;
         this.runtime.markovDice = "state-dice1";
-        this.runtime.markovSequence = ["1", "1", "1", "2", "3"];
-        this.runtime.states = ["1","2","3"];
+        this.runtime.markovSequence = ['1', '1', '1', '2', '3'];
+        this.runtime.states = ['1', '2', '3'];
         this.runtime.selectedState = '1';
-        //initializing
+
+        // initializing
         this.addDiceObject('dice1');
         this.addDiceObject('dice2');
+
+        this.waitingSounds = {};
+
+        // modal
+        this.runtime.modalDice = null;
+        this.runtime.on('NAME_DICE', diceName => {
+
+            if (this.getDiceIndex(diceName) === -1) {
+                this.addDiceObject(diceName);
+                this.runtime.modalDice = diceName;
+            } else {
+                this.runtime.modalDice = null;
+            }
+        });
+        this.runtime.on('SET_DISTRIBUTION', distribution => {
+                const i = this.getDiceIndex(this.runtime.modalDice);
+                this.runtime.dice[i].distribution = distribution;
+                const strings = [];
+                for (let j = 1; j <= distribution.split(',').length; j++) {
+                    strings.push(j.toString());
+                }
+                this.runtime.dice[i].strings = strings;
+                this.runtime.selectedDice = i;
+                this.runtime.sidesInternal = this.runtime.dice[i].strings;
+                this.runtime.selectedDice = i;
+                this.runtime.requestToolboxExtensionsUpdate();
+        });
 
     }
 
@@ -53,9 +85,27 @@ class Scratch3ChanceBlocks {
      */
     getInfo() {
 
+        // starter dice block reporters
+        this.costumeVal = 1;
+        this.soundVal = 1;
+
+        // costumes
+        this.costumeSliderDefault = '';
+
         // all blocks
         this.blocks = [];
         this.runtime.sliderString = this.runtime.dice[this.runtime.selectedDice].distribution + '|' + this.runtime.dice[this.runtime.selectedDice].strings.join('~');
+
+        let costumeLength = this.getCostumesForTarget();
+        let costumeList = [];
+        let chances = [];
+        //let costumes = this.runtime.targets[this.runtime.targets.length - 1].getCostumes();
+        for (let i = 0; i < costumeLength; i++) {
+            costumeList.push(i + 1);
+            chances.push(100.0 / costumeLength);
+        }
+        // this is not working 
+        this.costumeSliderDefault = chances.toString() + '|' + costumeList.join('~');
 
         // setting chances of all sides proportionately 
         this.setValue = function(currentDist, side, amount) {
@@ -100,6 +150,10 @@ class Scratch3ChanceBlocks {
             menuIconURI: menuIconURI,
             blocks: this.blocks,
             menus: {
+                starterDiceMenu: {
+                    items: ['costume#', 'sound#']
+                },
+
                 diceMenu: {
                     items: 'getDiceMenu',
                     acceptReporters: true
@@ -111,7 +165,7 @@ class Scratch3ChanceBlocks {
                 },
 
                 diceOptions: {
-                    items: ['create', 'rename', 'delete']
+                    items: [ /*'create', */ 'rename', 'delete']
                 },
 
                 stateMenu: {
@@ -122,16 +176,85 @@ class Scratch3ChanceBlocks {
         };
     }
 
-    addBlocks() {
+    getCostumesForTarget(target) {
+        target = target || this.runtime.getEditingTarget() || this.runtime.getTargetForStage();
+        let costumeLength = 0;
+        if (target) {
+            costumeLength = target.sprite.costumes_.length;
+        }
+        return costumeLength;
+    }
 
+    addBlocks() {
         this.blocks.push(
-            /*{
+            // Button
+            {
+                opcode: 'dicePlaygroundBlocks',
+                blockType: BlockType.BUTTON,
+                text: 'Starter Blocks'
+            },
+
+            {
+                opcode: 'setCostumeProb',
+                blockType: BlockType.COMMAND,
+                text: 'switch costume to [DISTRIBUTION]',
+                arguments: {
+                    DISTRIBUTION: {
+                        type: ArgumentType.SLIDER,
+                        defaultValue: '50.0,50.0|1~2'
+                    }
+                }
+            },
+
+            {
+                opcode: 'startSoundProb',
+                blockType: BlockType.COMMAND,
+                text: 'start sound [DISTRIBUTION]',
+                arguments: {
+                    DISTRIBUTION: {
+                        type: ArgumentType.SLIDER,
+                        defaultValue: '50.0,50.0|1~2'
+                    }
+                }
+
+            },
+
+            {
+                opcode: 'costumeSoundVal',
+                blockType: BlockType.REPORTER,
+                text: '[STARTERDICE]',
+                arguments: {
+                    STARTERDICE: {
+                        type: ArgumentType.NUMBER,
+                        defaultValue: 'costume#',
+                        menu: 'starterDiceMenu'
+                    }
+                }
+
+            },
+
+            {
+
                 opcode: 'makeDiceButton',
                 blockType: BlockType.BUTTON,
-                text: 'Make a Dice',
+                text: 'Make New Dice',
                 func: 'MAKE_A_DICE'
 
-            },*/
+
+            },
+
+            {
+                opcode: 'diceVal',
+                blockType: BlockType.REPORTER,
+                text: 'roll [DICE]',
+                arguments: {
+                    DICE: {
+                        type: ArgumentType.STRING,
+                        defaultValue: this.runtime.dice[this.runtime.selectedDice].diceName,
+                        menu: 'diceMenu'
+                    }
+                }
+            },
 
             {
                 opcode: 'setDistribution',
@@ -149,19 +272,6 @@ class Scratch3ChanceBlocks {
                     }
                 }
 
-            },
-
-            {
-                opcode: 'diceVal',
-                blockType: BlockType.REPORTER,
-                text: 'roll [DICE]',
-                arguments: {
-                    DICE: {
-                        type: ArgumentType.STRING,
-                        defaultValue: this.runtime.dice[this.runtime.selectedDice].diceName,
-                        menu: 'diceMenu'
-                    }
-                }
             },
 
             {
@@ -244,15 +354,7 @@ class Scratch3ChanceBlocks {
                 }
             },
 
-            // Temp block button in place of modal
-
-            {
-                opcode: 'additionalBlocks',
-                blockType: BlockType.BUTTON,
-                text: 'Temporary for Modal'
-            },
-
-            // create new dice and rename or delete existing dice
+            // Rename or delete existing dice
             {
                 opcode: 'diceFunc',
                 blockType: BlockType.COMMAND,
@@ -260,22 +362,22 @@ class Scratch3ChanceBlocks {
                 arguments: {
                     DICE_OPTIONS: {
                         type: ArgumentType.STRING,
-                        defaultValue: 'create',
+                        defaultValue: 'rename',
                         menu: 'diceOptions'
                     },
                     DICE: {
                         type: ArgumentType.STRING,
-                        defaultValue: ' ',
+                        defaultValue: this.runtime.dice[this.runtime.selectedDice].diceName,
                         menu: 'diceMenu'
                     },
                     NAME: {
                         type: ArgumentType.STRING,
-                        defaultValue: 'dice' + (this.runtime.dice.length + 1).toString(),
+                        defaultValue: '',
                     }
                 }
             },
 
-            // data/markov blocks
+            // Data/Markov blocks
 
             {
                 opcode: 'dataBlocks',
@@ -325,7 +427,7 @@ class Scratch3ChanceBlocks {
         this.runtime.dice.push({
             diceName: name,
             value: '1',
-            strings: ["1", "2", "3", "4", "5", "6"],
+            strings: ['1', '2', '3', '4', '5', '6'],
             distribution: '16.666666,16.666666,16.666666,16.666666,16.666666,16.666666'
         });
     }
@@ -367,63 +469,68 @@ class Scratch3ChanceBlocks {
 
     // To set the distribution of dice
     setDistribution(args) {
-        const i = this.getDiceIndex(args.DICE);
-        const splitted = args.DISTRIBUTION.split('|');
-        let distribution = splitted[0];
-        this.runtime.dice[i].strings = splitted[1].split('~');
-        this.runtime.sidesInternal = this.runtime.dice[i].strings;
-        this.runtime.dice[i].distribution = distribution;
-        this.runtime.selectedDice = i;
-        this.runtime.requestToolboxExtensionsUpdate();
+        const i = this.getDiceIndex(args.DICE.toString());
+        if (i > -1) {
+            const splitted = args.DISTRIBUTION.split('|');
+            let distribution = splitted[0];
+            this.runtime.dice[i].strings = splitted[1].split('~');
+            this.runtime.sidesInternal = this.runtime.dice[i].strings;
+            this.runtime.dice[i].distribution = distribution;
+            this.runtime.selectedDice = i;
+            this.runtime.requestToolboxExtensionsUpdate();
+        }
     }
 
-    // current dice roll reporter
-    diceVal(args) {
-        const i = this.getDiceIndex(args.DICE);
-        let distribution = this.runtime.dice[i].distribution;
-        let strings = this.runtime.dice[i].strings;
-        let sliders = JSON.parse("[" + distribution + "]");
-        const sliderSums = [sliders[0]];
-        for (let i = 1; i < sliders.length; i++) {
-            sliderSums.push(sliderSums[sliderSums.length - 1] + sliders[i]);
-        }
-        let newValue;
-        const randomNumber = random.real(0, 100);
-        for (let i = 0; i < sliders.length; i++) {
-            if (randomNumber <= sliderSums[i]) {
-                newValue = strings[i];
-                break;
+    // Current dice roll reporter
+    diceVal(args, util) {
+        const i = this.getDiceIndex(args.DICE.toString());
+        if (i > -1) {
+            let distribution = this.runtime.dice[i].distribution;
+            let strings = this.runtime.dice[i].strings;
+            let sliders = JSON.parse("[" + distribution + "]");
+            const sliderSums = [sliders[0]];
+            for (let i = 1; i < sliders.length; i++) {
+                sliderSums.push(sliderSums[sliderSums.length - 1] + sliders[i]);
             }
+            let newValue;
+            const randomNumber = random.real(0, 100);
+            for (let i = 0; i < sliders.length; i++) {
+                if (randomNumber <= sliderSums[i]) {
+                    newValue = strings[i];
+                    break;
+                }
+            }
+            this.runtime.dice[i].value = newValue;
+            this.runtime.selectedDice = i;
+            this.runtime.requestToolboxExtensionsUpdate();
+            return this.runtime.dice[i].value;
         }
-        this.runtime.dice[i].value = newValue;
-        this.runtime.selectedDice = i;
-        this.runtime.requestToolboxExtensionsUpdate();
-        return this.runtime.dice[i].value;
+
     }
 
 
     // Check if current dice roll value is a particular side
     ifDiceBool(args) {
         const i = this.getDiceIndex(args.DICE);
-        const side = args.SIDE;
+        const side = args.SIDE.toString();
         this.runtime.selectedSideVal['ifDiceBool'] = side;
         if (i > -1)
             return (this.runtime.dice[i].value === side);
         else
             return (args.DICE === side);
+
     }
 
     // Set chance of an event
     // update other event chances in the dice accordingly
     setChance(args) {
-        const i = this.getDiceIndex(args.DICE);
-        const side = this.getSideIndex(i, args.SIDE);
-        let newChance = Cast.toNumber(args.CHANCE);
-        let currentDist = this.runtime.dice[i].distribution;
-        const sliders = JSON.parse('[' + currentDist + ']');
-        let amount;
-
-        if (side < sliders.length) {
+        const i = this.getDiceIndex(args.DICE.toString());
+        const side = this.getSideIndex(i, args.SIDE.toString());
+        if (i > -1 && side > -1) {
+            let newChance = Cast.toNumber(args.CHANCE);
+            let currentDist = this.runtime.dice[i].distribution;
+            const sliders = JSON.parse('[' + currentDist + ']');
+            let amount;
             if (newChance < 0)
                 amount = -1.0 * sliders[side];
             else if (newChance > 100)
@@ -436,54 +543,52 @@ class Scratch3ChanceBlocks {
             this.runtime.selectedDice = i;
             this.runtime.requestToolboxExtensionsUpdate();
         }
-
     }
 
     // Chance chance of an event
     // update other event chances in the dice accordingly
     changeChance(args) {
-        const i = this.getDiceIndex(args.DICE);
-        const side = this.getSideIndex(i, args.SIDE);
-        let amount = Cast.toNumber(args.CHANCE);
-        let currentDist = this.runtime.dice[i].distribution;
-        const sliders = JSON.parse('[' + currentDist + ']');
-        if (side < sliders.length) {
+        const i = this.getDiceIndex(args.DICE.toString());
+        const side = this.getSideIndex(i, args.SIDE.toString());
+        if (i > -1 && side > -1) {
+            let amount = Cast.toNumber(args.CHANCE);
+            let currentDist = this.runtime.dice[i].distribution;
+            const sliders = JSON.parse('[' + currentDist + ']');
             const final = this.setValue(currentDist, side, amount);
             this.runtime.dice[i].distribution = final;
             this.runtime.selectedSideVal['changeChance'] = side;
             this.runtime.selectedDice = i;
             this.runtime.requestToolboxExtensionsUpdate();
         }
-
     }
 
     // Return current chance of a side in a dice
     chanceOfReporter(args) {
-        const i = this.getDiceIndex(args.DICE);
-        const side = this.getSideIndex(i, args.SIDE);
-        this.runtime.selectedSideVal['chanceOfReporter'] = side;
-        const sliders = JSON.parse('[' + this.runtime.dice[i].distribution + ']');
-        if (side < sliders.length) {
+        const i = this.getDiceIndex(args.DICE.toString());
+        const side = this.getSideIndex(i, args.SIDE.toString());
+        if (i > -1 && side > -1) {
+            this.runtime.selectedSideVal['chanceOfReporter'] = side;
+            const sliders = JSON.parse('[' + this.runtime.dice[i].distribution + ']');
             return Math.round(sliders[side]);
         }
-        return 0;
     }
 
     // Temp block to create/rename/delete dice
     diceFunc(args) {
-        const currentDice = args.DICE;
-        const newDiceName = args.NAME;
+        const currentDice = args.DICE.toString();
+        const newDiceName = args.NAME.toString();
         const selected = args.DICE_OPTIONS;
         switch (selected) {
 
-            case 'create':
+            // modal in progress for creating dice
+            /*case 'create':
                 if (this.getDiceIndex(newDiceName) === -1) {
                     this.addDiceObject(newDiceName);
                     this.runtime.selectedDice = this.runtime.dice.length - 1;
                     this.runtime.requestToolboxExtensionsUpdate();
                 } else
                     alert("Dice named \"" + newDiceName + "\" already exists.");
-                break;
+                break;*/
 
             case 'rename':
                 if (this.getDiceIndex(currentDice) > -1) {
@@ -513,75 +618,182 @@ class Scratch3ChanceBlocks {
         }
     }
 
-    //update dice from list
+    // update dice from list
     diceFromList(args) {
-        const i = this.getDiceIndex(args.DICE);
+        const i = this.getDiceIndex(args.DICE.toString());
         let newDiceName = "state-" + this.runtime.dice[i].diceName;
-
-        if (args.LISTARRAY == '')
-            alert("No input provided.");
+        
+        if (i > -1 && !this.runtime.dice[i].diceName.includes('state')) {
+            if (args.LISTARRAY === '')
+                alert("No input provided.");
+            else {
+                if (this.getDiceIndex(newDiceName) === -1) {        
+                    // create new state dice 
+                    this.addDiceObject(newDiceName);
+                }
+                const listVal = args.LISTARRAY.toString();
+                if (listVal.includes(' ')) {
+                    this.runtime.markovSequence = listVal.split(' ');
+                } else {
+                    this.runtime.markovSequence = listVal.split('').join(' ').split(' ');
+                }
+                this.runtime.states = this.runtime.markovSequence.filter((item, i, ar) => ar.indexOf(item) === i);
+                let arr = this.runtime.markovSequence;
+                let newDist = {};
+                for (let i = 0; i < arr.length; i++) {
+                    let num = arr[i];
+                    newDist[num] = newDist[num] ? newDist[num] + 1 : 1;
+                }
+                let frequency = Object.values(newDist);
+                let sum = frequency.reduce((acc, item) => acc + item, 0);
+                this.runtime.dice[i].distribution = frequency.map(item => ((item / sum) * 100)).join();
+                this.runtime.dice[i].strings = Object.keys(newDist);
+                this.runtime.sidesInternal = this.runtime.dice[i].strings;
+                this.runtime.dataDice = i;
+                this.runtime.markovDice = newDiceName;
+                this.runtime.selectedState = this.runtime.states[0];
+                this.runtime.selectedDice = i;
+                this.runtime.requestToolboxExtensionsUpdate();
+            }
+        }
         else {
-            if (this.getDiceIndex(newDiceName) === -1) {
-                //create new state dice
-                this.addDiceObject(newDiceName);
-            }
-            this.runtime.markovSequence = args.LISTARRAY.split(' ');
-            this.runtime.states = this.runtime.markovSequence.filter((item, i, ar) => ar.indexOf(item) === i);
-            let arr = this.runtime.markovSequence;
-            let newDist = {};
-            for (let i = 0; i < arr.length; i++) {
-                let num = arr[i];
-                newDist[num] = newDist[num] ? newDist[num] + 1 : 1;
-            }
-            let frequency = Object.values(newDist);
-            let sum = frequency.reduce((acc, item) => acc + item, 0);
-            this.runtime.dice[i].distribution = frequency.map(item => ((item / sum) * 100)).join();
-            this.runtime.dice[i].strings = Object.keys(newDist);
-            this.runtime.sidesInternal = this.runtime.dice[i].strings;
-            this.runtime.dataDice = i;
-            this.runtime.markovDice = newDiceName;
-            this.runtime.selectedState = this.runtime.states[0];
-            this.runtime.selectedDice = i;
-            this.runtime.requestToolboxExtensionsUpdate();
+            alert ('Cannot update state dice');
         }
     }
+
+    // markov learning
 
     createStateDice(args) {
-        const i = this.getDiceIndex(args.DICE);
-        const state = args.STATE;
-        this.runtime.selectedState = state;
-        let newDist = {};
-        let arr = this.runtime.markovSequence;
-        const markovChain = {};
-        for (let x = 0; x < arr.length; x++) {
-            let word = arr[x].toLowerCase().replace(/[\W_]/, "")
-            if (!markovChain[word]) {
-                markovChain[word] = [];
+        const i = this.getDiceIndex(args.DICE.toString());
+        const state = args.STATE.toString();
+        if (i > -1 && this.runtime.states.includes(state)) {
+            this.runtime.selectedState = state;
+            let newDist = {};
+            let arr = this.runtime.markovSequence;
+            const markovChain = {};
+            for (let x = 0; x < arr.length; x++) {
+                let word = arr[x].toLowerCase().replace(/[\W_]/, "")
+                if (!markovChain[word]) {
+                    markovChain[word] = [];
+                }
+                if (arr[x + 1]) {
+                    markovChain[word].push(arr[x + 1].toLowerCase().replace(/[\W_]/, ""));
+                }
             }
-            if (arr[x + 1]) {
-                markovChain[word].push(arr[x + 1].toLowerCase().replace(/[\W_]/, ""));
+            newDist = makeDice(markovChain[state]);
+            function makeDice(markovArr) {
+                for (let i = 0; i < markovArr.length; i++) {
+                    let num = markovArr[i];
+                    newDist[num] = newDist[num] ? newDist[num] + 1 : 1;
+                }
+                return newDist;
             }
-        }
-        newDist = makeDice(markovChain[state]);
-
-        function makeDice(markovArr) {
-            for (let i = 0; i < markovArr.length; i++) {
-                let num = markovArr[i];
-                newDist[num] = newDist[num] ? newDist[num] + 1 : 1;
+            if (Object.keys(newDist).length > 1) {
+                let frequency = Object.values(newDist);
+                let sum = frequency.reduce((acc, item) => acc + item, 0);
+                this.runtime.dice[i].distribution = frequency.map(item => ((item / sum) * 100)).join();
+                this.runtime.dice[i].strings = Object.keys(newDist);
+            } 
+            // if only one side
+            else if (Object.keys(newDist).length === 1){
+                let parentIndex = this.getDiceIndex(args.DICE.toString().slice(6));
+                this.runtime.dice[i].strings = this.runtime.dice[parentIndex].strings
+                this.runtime.dice[i].distribution = this.runtime.dice[parentIndex].distribution;
+                let currentDist = this.runtime.dice[i].distribution;
+                let side = this.getSideIndex(i, Object.keys(newDist).toString());
+                const sliders = currentDist.split(',');
+                let amount = 70.0 - sliders[side];
+                this.runtime.dice[i].distribution = this.setValue(currentDist, side, amount);
+            } 
+            // if no side
+            else {
+                let parentIndex = this.getDiceIndex(args.DICE.toString().slice(6));
+                this.runtime.dice[i].strings = this.runtime.dice[parentIndex].strings
+                this.runtime.dice[i].distribution = this.runtime.dice[parentIndex].distribution;
             }
-            return newDist;
-        }
-        if (Object.keys(newDist).length !== 0) {
-            let frequency = Object.values(newDist);
-            let sum = frequency.reduce((acc, item) => acc + item, 0);
-            this.runtime.dice[i].distribution = frequency.map(item => ((item / sum) * 100)).join();
-            this.runtime.dice[i].strings = Object.keys(newDist);
             this.runtime.sidesInternal = this.runtime.dice[i].strings;
             this.runtime.selectedDice = i;
             this.runtime.requestToolboxExtensionsUpdate();
         }
     }
 
+    // costume
+
+    getChance(distribution, strings) {
+        let sliders = JSON.parse('[' + distribution[0] + ']');
+        let newValue;
+        const sliderSums = [sliders[0]];
+        for (let i = 1; i < sliders.length; i++) {
+            sliderSums.push(sliderSums[sliderSums.length - 1] + sliders[i]);
+        }
+        const randomNumber = random.real(0, 100);
+        for (let i = 0; i < sliders.length; i++) {
+            if (randomNumber <= sliderSums[i]) {
+                newValue = strings[i];
+                break;
+            }
+        }
+        return newValue;
+    }
+
+    setCostumeProb(args, util) {
+        let distribution = args.DISTRIBUTION.split('|');
+        let strings = distribution[1].split('~');
+        let newValue = this.getChance(distribution, strings);
+        this._setCostume(util.target, newValue);
+    }
+
+    _setCostume(target, requestedCostume, optZeroIndex) {
+        if (typeof requestedCostume === 'number') {
+            // Numbers should be treated as costume indices, always
+            target.setCostume(optZeroIndex ? requestedCostume : requestedCostume - 1);
+        } else {
+            // Strings should be treated as costume names, where possible
+            const costumeIndex = target.getCostumeIndexByName(requestedCostume.toString());
+
+            if (costumeIndex !== -1) {
+                target.setCostume(costumeIndex);
+            } else if (!(isNaN(requestedCostume) || Cast.isWhiteSpace(requestedCostume))) {
+                target.setCostume(optZeroIndex ? Number(requestedCostume) : Number(requestedCostume) - 1);
+            }
+        }
+        return [];
+    }
+
+    //sound
+
+    startSoundProb(args, util) {
+        let distribution = args.DISTRIBUTION.split('|');
+        let strings = distribution[1].split('~');
+        let newValue = this.getChance(distribution, strings);
+        this.soundVal = newValue;
+        this._playSound(args, util, newValue);
+    }
+
+    _playSound(args, util, newValue) {
+        const index = newValue - 1;
+        const {target} = util;
+        const {sprite} = target;
+        if (index > -1 && index < sprite.sounds.length) {
+            const {soundId} = sprite.sounds[index];
+            this._removeWaitingSound(target.id, soundId);
+            return sprite.soundBank.playSound(target, soundId);
+        }
+    }
+
+    _removeWaitingSound (targetId, soundId) {
+        if (!this.waitingSounds[targetId]) {
+            return;
+        }
+        this.waitingSounds[targetId].delete(soundId);
+    }
+
+    costumeSoundVal(args, util){
+        if(args.STARTERDICE === 'costume#'){
+            return (util.target.currentCostume + 1);
+        } else
+            return this.soundVal;
+    }
 }
 
 module.exports = Scratch3ChanceBlocks;
