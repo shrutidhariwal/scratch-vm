@@ -39,6 +39,7 @@ class Scratch3ChanceBlocks {
         this.runtime.selectedSideVal['setChance'] = 0;
         this.runtime.selectedSideVal['changeChance'] = 0;
         this.runtime.selectedSideVal['chanceOfReporter'] = 0;
+        
 
         // markov
         this.runtime.dataDice = 0;
@@ -50,6 +51,8 @@ class Scratch3ChanceBlocks {
         // initializing
         this.addDiceObject('dice1');
         this.addDiceObject('dice2');
+        this.runtime.diceToChange = this.runtime.dice[this.runtime.selectedDice].diceName;
+        this.runtime.renamedice = 0;
 
         this.waitingSounds = {};
 
@@ -111,6 +114,9 @@ class Scratch3ChanceBlocks {
         this.setValue = function(currentDist, side, amount) {
             let sliders = JSON.parse("[" + currentDist + "]");
             let sumOfRest = 0;
+            if(sliders[side] + amount < 0) {
+                amount = -1.0 * sliders[side];
+            }
             for (let i = 0; i < sliders.length; i++) {
                 if (i !== side) {
                     sumOfRest += sliders[i];
@@ -164,8 +170,8 @@ class Scratch3ChanceBlocks {
                     acceptReporters: true
                 },
 
-                diceOptions: {
-                    items: [ /*'create', */ 'rename', 'delete']
+                diceOptionsMenu: {
+                    items: 'getDiceOptionsMenu',
                 },
 
                 stateMenu: {
@@ -264,7 +270,7 @@ class Scratch3ChanceBlocks {
                     DICE: {
                         type: ArgumentType.STRING,
                         defaultValue: this.runtime.dice[this.runtime.selectedDice].diceName,
-                        menu: 'diceMenu'
+                        menu: 'diceOptionsMenu'
                     },
                     DISTRIBUTION: {
                         type: ArgumentType.SLIDER,
@@ -354,7 +360,7 @@ class Scratch3ChanceBlocks {
                 }
             },
 
-            // Rename or delete existing dice
+            /* Rename or delete existing dice
             {
                 opcode: 'diceFunc',
                 blockType: BlockType.COMMAND,
@@ -375,7 +381,7 @@ class Scratch3ChanceBlocks {
                         defaultValue: '',
                     }
                 }
-            },
+            },*/
 
             // Data/Markov blocks
 
@@ -445,6 +451,18 @@ class Scratch3ChanceBlocks {
         return diceItems;
     }
 
+    // Set dice block menu with rename/delete option
+    getDiceOptionsMenu() {
+        const diceOptionItems = [];
+        for (let i = 0; i < this.runtime.dice.length; i++) {
+            diceOptionItems.push(this.runtime.dice[i].diceName);
+        }
+        this.runtime.diceToChange = this.runtime.dice[this.runtime.selectedDice].diceName;
+        diceOptionItems.push(`Rename "${this.runtime.diceToChange}"`)
+        diceOptionItems.push(`Delete "${this.runtime.diceToChange}"`)
+        return diceOptionItems;
+    }
+
     // Set side menu based dynamically
     getSideMenu() {
         return this.runtime.sidesInternal;
@@ -469,8 +487,20 @@ class Scratch3ChanceBlocks {
 
     // To set the distribution of dice
     setDistribution(args) {
-        const i = this.getDiceIndex(args.DICE.toString());
-        if (i > -1) {
+        const diceName = args.DICE.toString();
+        const renameDice = `Rename "${this.runtime.diceToChange}"`;
+        const deleteDice = `Delete "${this.runtime.diceToChange}"`;
+        const i = this.getDiceIndex(diceName);
+        if (diceName === renameDice) {
+            //this.runtime.renamedice = 1;
+        } else if (diceName === deleteDice) {
+            if (this.runtime.dice.length > 1) {
+                        this.runtime.dice.splice(this.getDiceIndex(this.runtime.diceToChange), 1);
+                        this.runtime.selectedDice = 0;
+                        this.runtime.requestToolboxExtensionsUpdate();
+            } else
+                alert(`Cannot delete "${this.runtime.diceToChange}"`);
+        } else if (i > -1) {
             const splitted = args.DISTRIBUTION.split('|');
             let distribution = splitted[0];
             this.runtime.dice[i].strings = splitted[1].split('~');
@@ -478,7 +508,7 @@ class Scratch3ChanceBlocks {
             this.runtime.dice[i].distribution = distribution;
             this.runtime.selectedDice = i;
             this.runtime.requestToolboxExtensionsUpdate();
-        }
+        } 
     }
 
     // Current dice roll reporter
@@ -573,22 +603,21 @@ class Scratch3ChanceBlocks {
         }
     }
 
-    // Temp block to create/rename/delete dice
+    /* Temp block to create/rename/delete dice
     diceFunc(args) {
         const currentDice = args.DICE.toString();
         const newDiceName = args.NAME.toString();
         const selected = args.DICE_OPTIONS;
         switch (selected) {
 
-            // modal in progress for creating dice
-            /*case 'create':
+            case 'create':
                 if (this.getDiceIndex(newDiceName) === -1) {
                     this.addDiceObject(newDiceName);
                     this.runtime.selectedDice = this.runtime.dice.length - 1;
                     this.runtime.requestToolboxExtensionsUpdate();
                 } else
                     alert("Dice named \"" + newDiceName + "\" already exists.");
-                break;*/
+                break;
 
             case 'rename':
                 if (this.getDiceIndex(currentDice) > -1) {
@@ -616,7 +645,7 @@ class Scratch3ChanceBlocks {
             default:
                 break;
         }
-    }
+    }*/
 
     // update dice from list
     diceFromList(args) {
