@@ -842,13 +842,24 @@ class Scratch3ChanceBlocks {
     }
 
     _playSound(args, util, newValue) {
-        const index = newValue - 1;
         const { target } = util;
         const { sprite } = target;
+        const index = this.getSoundIndexByName(newValue.toString(), util);
         if (index > -1 && index < sprite.sounds.length) {
             const { soundId } = sprite.sounds[index];
             return sprite.soundBank.playSound(target, soundId);
         }
+    }
+
+    getSoundIndexByName (soundName, util) {
+        const sounds = util.target.sprite.sounds;
+        for (let i = 0; i < sounds.length; i++) {
+            if (sounds[i].name === soundName) {
+                return i;
+            }
+        }
+        // if there is no sound by that name, return -1
+        return -1;
     }
 
     costumeSoundVal(args, util) {
