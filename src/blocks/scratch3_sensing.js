@@ -14,6 +14,12 @@ class Scratch3SensingBlocks {
          * The "answer" block value.
          * @type {string}
          */
+        this._keyNumber = '';
+
+        /**
+         * The "answer" block value.
+         * @type {string}
+         */
         this._answer = '';
 
         /**
@@ -44,6 +50,63 @@ class Scratch3SensingBlocks {
         this.runtime.on('PROJECT_START', this._resetAnswer.bind(this));
         this.runtime.on('PROJECT_STOP_ALL', this._clearAllQuestions.bind(this));
         this.runtime.on('STOP_FOR_TARGET', this._clearTargetQuestions.bind(this));
+
+        // Map Key Pressed to Number - Reporter
+
+        this.runtime.on('KEY_PRESSED', key => {
+                    let keyString = key.split(' ')[0];
+                    let keyNo = new Map([
+                        ['1', 1],
+                        ['2', 2],
+                        ['3', 3],
+                        ['4', 4],
+                        ['5', 5],
+                        ['6', 6],
+                        ['7', 7],
+                        ['8', 8],
+                        ['9', 9],
+                        ['0', 10],
+                        ['Q', 11],
+                        ['W', 12],
+                        ['E', 13],
+                        ['R', 14],
+                        ['T', 15],
+                        ['Y', 16],
+                        ['U', 17],
+                        ['I', 18],
+                        ['O', 19],
+                        ['P', 20],
+                        ['A', 21],
+                        ['S', 22],
+                        ['D', 23],
+                        ['F', 24],
+                        ['G', 25],
+                        ['H', 26],
+                        ['J', 27],
+                        ['K', 28],
+                        ['L', 29],
+                        ['Z', 30],
+                        ['X', 31],
+                        ['C', 32],
+                        ['V', 33],
+                        ['B', 34],
+                        ['N', 35],
+                        ['M', 36],
+                        ['space', 37],
+                        ['left', 38],
+                        ['up', 39],
+                        ['down', 40],
+                        ['right', 41],
+
+                    ]);
+                    keyNo = keyNo.get(keyString);
+                    if(keyNo) {
+                        this._keyNumber = keyNo;
+                    }
+                    else {
+                        this._keyNumber = '';
+                    }
+                });
     }
 
     /**
@@ -64,6 +127,7 @@ class Scratch3SensingBlocks {
             sensing_setdragmode: this.setDragMode,
             sensing_mousedown: this.getMouseDown,
             sensing_keypressed: this.getKeyPressed,
+            sensing_keypressednumber: this.getKeyPressedNumber,
             sensing_current: this.current,
             sensing_dayssince2000: this.daysSince2000,
             sensing_loudness: this.getLoudness,
@@ -77,6 +141,9 @@ class Scratch3SensingBlocks {
 
     getMonitored () {
         return {
+            sensing_keypressednumber: {
+                getId: () => 'keypressednumber'
+            },
             sensing_answer: {
                 getId: () => 'answer'
             },
@@ -246,6 +313,10 @@ class Scratch3SensingBlocks {
 
     getKeyPressed (args, util) {
         return util.ioQuery('keyboard', 'getKeyIsDown', [args.KEY_OPTION]);
+    }
+
+    getKeyPressedNumber (){
+        return this._keyNumber;
     }
 
     daysSince2000 () {

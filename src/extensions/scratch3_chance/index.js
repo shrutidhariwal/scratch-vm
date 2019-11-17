@@ -62,7 +62,53 @@ class Scratch3ChanceBlocks {
                 // modal
                 this.runtime.modalDice = null;
                 this.runtime.on('KEY_PRESSED', key => {
-                    this.runtime.keyPressed = key.split(' ')[0];
+                    let keyString = key.split(' ')[0];
+                    let keyNo = new Map([
+                        ['1', 1],
+                        ['2', 2],
+                        ['3', 3],
+                        ['4', 4],
+                        ['5', 5],
+                        ['6', 6],
+                        ['7', 7],
+                        ['8', 8],
+                        ['9', 9],
+                        ['0', 10],
+                        ['Q', 11],
+                        ['W', 12],
+                        ['E', 13],
+                        ['R', 14],
+                        ['T', 15],
+                        ['Y', 16],
+                        ['U', 17],
+                        ['I', 18],
+                        ['O', 19],
+                        ['P', 20],
+                        ['A', 21],
+                        ['S', 22],
+                        ['D', 23],
+                        ['F', 24],
+                        ['G', 25],
+                        ['H', 26],
+                        ['J', 27],
+                        ['K', 28],
+                        ['L', 29],
+                        ['Z', 30],
+                        ['X', 31],
+                        ['C', 32],
+                        ['V', 33],
+                        ['B', 34],
+                        ['N', 35],
+                        ['M', 36]
+                    ]);
+                    keyNo = keyNo.get(keyString);
+                    if(keyNo) {
+                        this.runtime.keyPressed = keyNo;
+                    }
+                    else {
+                        this.runtime.keyPressed = '';
+                    }
+                    
                 });
             }
             this.runtime.requestToolboxExtensionsUpdate();
@@ -184,8 +230,7 @@ class Scratch3ChanceBlocks {
     }
 
     addBlocks() {
-        this.blocks.push(
-            {
+        this.blocks.push({
                 opcode: 'setCostumeProb',
                 blockType: BlockType.COMMAND,
                 text: 'switch [DICE] to [DISTRIBUTION]',
@@ -411,13 +456,13 @@ class Scratch3ChanceBlocks {
                             menu: 'stateMenu'
                         }
                     }
-                }/*,
+                },
 
                 {
                     opcode: 'getKeyPressed',
                     blockType: BlockType.REPORTER,
                     text: 'key pressed'
-                }*/
+                }
             );
         }
     }
@@ -851,7 +896,7 @@ class Scratch3ChanceBlocks {
         }
     }
 
-    getSoundIndexByName (soundName, util) {
+    getSoundIndexByName(soundName, util) {
         const sounds = util.target.sprite.sounds;
         for (let i = 0; i < sounds.length; i++) {
             if (sounds[i].name === soundName) {
