@@ -68,6 +68,9 @@ class Scratch3ChanceBlocks {
             this.runtime.requestToolboxExtensionsUpdate();
         });
 
+        this.runtime.on('PROJECT_CHANGED', () => {
+            this.runtime.requestToolboxExtensionsUpdate();
+        });
 
     }
 
