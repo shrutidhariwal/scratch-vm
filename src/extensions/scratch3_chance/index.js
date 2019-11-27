@@ -37,11 +37,11 @@ class Scratch3ChanceBlocks {
         this.addDiceObject('costume dice', "costume");
         this.setDefaults();
 
+        // hack
         this.runtime.on('PROJECT_LOADED', () => {
             this.runtime.dice = [];
             this.addDiceObject('sound dice', "sound");
             this.addDiceObject('costume dice', "costume");
-            this.addDiceObject('dice1', "number");
             let newDiceAdded = [];
             let blocksLoaded = [];
             if (this.runtime.targets) {
@@ -76,9 +76,9 @@ class Scratch3ChanceBlocks {
             this.runtime.requestToolboxExtensionsUpdate();
         });
 
-        this.runtime.on('KEY_PRESSED', key => {
+        /*this.runtime.on('KEY_PRESSED', key => {
             this.runtime.keyPressed = key.split(' ')[0];
-        });
+        });*/
 
     }
 
@@ -139,7 +139,7 @@ class Scratch3ChanceBlocks {
             blocks: this.blocks,
             menus: {
                 starterDiceMenu: {
-                    items: ['sound number', 'sound name', 'costume number', 'costume name']
+                    items: ['costume number', 'costume name', 'sound number', 'sound name']
                 },
 
                 costumeDiceMenu: {
@@ -160,13 +160,13 @@ class Scratch3ChanceBlocks {
                     acceptReporters: true
                 },
 
-                chancesMenu: {
+               chancesMenu: {
                     items: 'getChancesMenu',
                     acceptReporters: true
                 },
 
                 diceOptionsMenu: {
-                    items: 'getDiceOptionsMenu',
+                    items: 'getDiceOptionsMenu'
                 },
 
                 markovDiceMenu: {
@@ -216,7 +216,7 @@ class Scratch3ChanceBlocks {
             },
 
 
-            {
+            /*{
                 opcode: 'costumeSoundVal',
                 blockType: BlockType.REPORTER,
                 text: 'rolled [STARTERDICE]',
@@ -228,7 +228,7 @@ class Scratch3ChanceBlocks {
                     }
                 }
 
-            },
+            },*/
             '---', {
 
                 opcode: 'makeDiceButton',
@@ -242,30 +242,6 @@ class Scratch3ChanceBlocks {
         if (this.runtime.dice.length > 2) {
             this.runtime.sliderString = this.runtime.dice[this.runtime.selectedDice].distribution + '|' + this.runtime.dice[this.runtime.selectedDice].strings.join('~');
             this.blocks.push({
-                    opcode: 'diceVal',
-                    blockType: BlockType.REPORTER,
-                    text: 'roll [DICE]',
-                    arguments: {
-                        DICE: {
-                            type: ArgumentType.STRING,
-                            defaultValue: this.runtime.dice[this.runtime.selectedDice].diceName,
-                            menu: 'diceMenu'
-                        }
-                    }
-                },
-
-                {
-                    opcode: 'lastDiceVal',
-                    blockType: BlockType.REPORTER,
-                    text: 'rolled [DICE]',
-                    arguments: {
-                        DICE: {
-                            type: ArgumentType.STRING,
-                            defaultValue: this.runtime.dice[this.runtime.selectedDice].diceName,
-                            menu: 'diceMenu'
-                        }
-                    }
-                }, {
                     opcode: 'setDistribution',
                     blockType: BlockType.COMMAND,
                     text: 'set [DICE] to [DISTRIBUTION]',
@@ -283,7 +259,33 @@ class Scratch3ChanceBlocks {
 
                 },
 
-                '---', {
+                {
+                    opcode: 'diceVal',
+                    blockType: BlockType.REPORTER,
+                    text: 'roll [DICE]',
+                    arguments: {
+                        DICE: {
+                            type: ArgumentType.STRING,
+                            defaultValue: this.runtime.dice[this.runtime.selectedDice].diceName,
+                            menu: 'diceMenu'
+                        }
+                    }
+                },
+
+                /* {
+                    opcode: 'lastDiceVal',
+                    blockType: BlockType.REPORTER,
+                    text: 'rolled [DICE]',
+                    arguments: {
+                        DICE: {
+                            type: ArgumentType.STRING,
+                            defaultValue: this.runtime.dice[this.runtime.selectedDice].diceName,
+                            menu: 'diceMenu'
+                        }
+                    }
+                },*/
+
+                {
                     opcode: 'ifDiceBool',
                     blockType: BlockType.BOOLEAN,
                     text: '[DICE] is [SIDE]',
@@ -300,6 +302,8 @@ class Scratch3ChanceBlocks {
                         }
                     }
                 },
+
+                '---', 
 
                 {
                     opcode: 'setChance',
@@ -363,17 +367,12 @@ class Scratch3ChanceBlocks {
                     }
                 },
 
-                // Data/Markov blocks
-                '---', {
-                    opcode: 'dataBlocks',
-                    blockType: BlockType.BUTTON,
-                    text: 'Data/Markov Blocks'
-                },
+                '---',
 
                 {
                     opcode: 'diceFromList',
                     blockType: BlockType.COMMAND,
-                    text: 'set [DICE] from [LISTARRAY]',
+                    text: 'set [DICE] from list [LISTARRAY]',
                     arguments: {
                         DICE: {
                             type: ArgumentType.STRING,
@@ -382,15 +381,19 @@ class Scratch3ChanceBlocks {
                         },
                         LISTARRAY: {
                             type: ArgumentType.STRING,
-                            defaultValue: this.runtime.listData
+                            defaultValue: 'A A A B C'
                         }
                     }
                 },
-
+                {
+                    opcode: 'dataBlocks',
+                    blockType: BlockType.BUTTON,
+                    text: 'Markov Block'
+                },
                 {
                     opcode: 'createStateDice',
                     blockType: BlockType.REPORTER,
-                    text: 'next roll [MARKOVDICE]',
+                    text: 'get next roll of [MARKOVDICE]',
                     arguments: {
                         MARKOVDICE: {
                             type: ArgumentType.STRING,
@@ -408,6 +411,29 @@ class Scratch3ChanceBlocks {
                                 }*/
             );
         }
+        /*if(this.runtime.markovDice){
+            this.blocks.push(
+                // Markov block
+                '---', 
+                {
+                    opcode: 'dataBlocks',
+                    blockType: BlockType.BUTTON,
+                    text: 'Markov Block'
+                },
+
+                {
+                    opcode: 'createStateDice',
+                    blockType: BlockType.REPORTER,
+                    text: 'get next roll of [MARKOVDICE]',
+                    arguments: {
+                        MARKOVDICE: {
+                            type: ArgumentType.STRING,
+                            defaultValue: this.runtime.markovDice,
+                            menu: 'markovDiceMenu'
+                        }
+                    }
+                });
+        }*/
     }
 
     setDefaults() {
@@ -420,7 +446,8 @@ class Scratch3ChanceBlocks {
         this.runtime.selectedSideVal['chanceOfReporter'] = 0;
 
         // markov
-        this.runtime.listData = 'A A A B C'
+        //this.runtime.listData = 'A A A B C'
+        this.markovReady = 0;
         this.runtime.markovSequence = ['A', 'A', 'A', 'B', 'C'];
         this.runtime.states = ['A', 'B', 'C'];
         this.runtime.selectedState = 'A';
@@ -531,7 +558,7 @@ class Scratch3ChanceBlocks {
     // Set dice menu dynamically
     getDiceMenu() {
         const diceItems = [];
-        for (let i = 2; i < this.runtime.dice.length; i++) {
+        for (let i = this.runtime.dice.length-1; i > 1; i--) {
             diceItems.push(this.runtime.dice[i].diceName);
         }
         return diceItems;
@@ -540,7 +567,7 @@ class Scratch3ChanceBlocks {
     // Set dice block menu with rename/delete option
     getDiceOptionsMenu() {
         const diceOptionItems = [];
-        for (let i = 2; i < this.runtime.dice.length; i++) {
+        for (let i = this.runtime.dice.length-1; i > 1; i--) {
             diceOptionItems.push(this.runtime.dice[i].diceName);
         }
         this.runtime.diceToChange = this.runtime.dice[this.runtime.selectedDice].diceName;
@@ -615,7 +642,7 @@ class Scratch3ChanceBlocks {
             }
         }
         this.runtime.dice[i].value = newValue;
-        var regex = /\d{1,}to\d{1,}/g;
+        var regex = /\d{1,}to\d{1,}/g; // check if of format 0to20 etc.
         if (newValue.match(regex)) {
             const n1 = parseInt(newValue.split('to')[0]);
             const n2 = parseInt(newValue.split('to')[1]);
@@ -627,12 +654,13 @@ class Scratch3ChanceBlocks {
         return this.runtime.dice[i].value;
     }
 
-    lastDiceVal(args) {
+    // correct for range type if implementing later
+    /*lastDiceVal(args) {
         const i = this.getDiceIndex(args.DICE.toString());
         if (i > -1) {
             return this.runtime.dice[i].value;
         }
-    }
+    }*/
 
     // To set the distribution of dice
     setDistribution(args) {
@@ -745,7 +773,7 @@ class Scratch3ChanceBlocks {
                 alert("No input provided.");
             else {
                 const listVal = args.LISTARRAY.toString();
-                this.runtime.listData = listVal;
+                //this.runtime.listData = listVal;
                 if (listVal.includes(' ')) {
                     this.runtime.markovSequence = listVal.split(' ');
                 } else {
@@ -764,9 +792,12 @@ class Scratch3ChanceBlocks {
                 this.runtime.dice[i].strings = Object.keys(newDist);
                 this.runtime.markovDistribution = '';
                 this.runtime.markovStrings = '';
+                this.runtime.originalDistribution = this.runtime.dice[i].distribution;
+                this.runtime.originalStrings = this.runtime.dice[i].strings;
                 this.runtime.markovDice = args.DICE.toString();
                 this.runtime.selectedState = this.pickRoll(i);
                 this.runtime.selectedDice = i;
+                this.markovReady = 1;
                 this.runtime.requestToolboxExtensionsUpdate();
             }
         }
@@ -776,60 +807,60 @@ class Scratch3ChanceBlocks {
 
     createStateDice(args) {
         const i = this.getDiceIndex(args.MARKOVDICE.toString());
-        const originalDistribution = this.runtime.dice[i].distribution;
-        const originalStrings = this.runtime.dice[i].strings;
-        const state = this.runtime.selectedState;
-        if (i > -1 && this.runtime.states.includes(state)) {
-            let newDist = {};
-            let arr = this.runtime.markovSequence;
-            const markovChain = {};
-            for (let x = 0; x < arr.length; x++) {
-                let word = arr[x];
-                if (!markovChain[word]) {
-                    markovChain[word] = [];
+        if(i > -1 && this.markovReady) {
+            const state = this.runtime.selectedState;
+            if (this.runtime.states.includes(state)) {
+                let newDist = {};
+                let arr = this.runtime.markovSequence;
+                const markovChain = {};
+                for (let x = 0; x < arr.length; x++) {
+                    let word = arr[x];
+                    if (!markovChain[word]) {
+                        markovChain[word] = [];
+                    }
+                    if (arr[x + 1]) {
+                        markovChain[word].push(arr[x + 1]);
+                    }
                 }
-                if (arr[x + 1]) {
-                    markovChain[word].push(arr[x + 1]);
-                }
-            }
-            newDist = makeDice(markovChain[state]);
+                newDist = makeDice(markovChain[state]);
 
-            function makeDice(markovArr) {
-                for (let i = 0; i < markovArr.length; i++) {
-                    let num = markovArr[i];
-                    newDist[num] = newDist[num] ? newDist[num] + 1 : 1;
-                }
+                function makeDice(markovArr) {
+                    for (let i = 0; i < markovArr.length; i++) {
+                        let num = markovArr[i];
+                        newDist[num] = newDist[num] ? newDist[num] + 1 : 1;
+                    }
                 return newDist;
+                }
+                if (Object.keys(newDist).length > 1) {
+                    let frequency = Object.values(newDist);
+                    let sum = frequency.reduce((acc, item) => acc + item, 0);
+                    this.runtime.markovDistribution = frequency.map(item => ((item / sum) * 100)).join();
+                    this.runtime.markovStrings = Object.keys(newDist);
+                }
+                // if only one side
+                else if (Object.keys(newDist).length === 1) {
+                    this.runtime.markovStrings = this.runtime.originalStrings;
+                    this.runtime.markovDistribution = this.runtime.originalDistribution;
+                    let currentDist = this.runtime.markovDistribution;
+                    let side = this.getSideIndex(i, Object.keys(newDist).toString());
+                    const sliders = currentDist.split(',');
+                    let amount = 80.0 - sliders[side];
+                    this.runtime.markovDistribution = this.setValue(currentDist, side, amount);
+                }
+                // if no side
+                else {
+                    this.runtime.markovStrings = this.runtime.originalStrings;
+                    this.runtime.markovDistribution = this.runtime.originalDistribution;
+                }
+                this.runtime.selectedDice = i;
+                this.runtime.dice[i].distribution = this.runtime.markovDistribution;
+                this.runtime.dice[i].strings = this.runtime.markovStrings;
+                let rolledState = this.pickRoll(i);
+                this.runtime.selectedState = rolledState;
+                this.runtime.dice[i].value = rolledState;
+                this.runtime.requestToolboxExtensionsUpdate();
+                return state;
             }
-            if (Object.keys(newDist).length > 1) {
-                let frequency = Object.values(newDist);
-                let sum = frequency.reduce((acc, item) => acc + item, 0);
-                this.runtime.markovDistribution = frequency.map(item => ((item / sum) * 100)).join();
-                this.runtime.markovStrings = Object.keys(newDist);
-            }
-            // if only one side
-            else if (Object.keys(newDist).length === 1) {
-                this.runtime.markovStrings = originalStrings;
-                this.runtime.markovDistribution = originalDistribution;
-                let currentDist = this.runtime.markovDistribution;
-                let side = this.getSideIndex(i, Object.keys(newDist).toString());
-                const sliders = currentDist.split(',');
-                let amount = 80.0 - sliders[side];
-                this.runtime.markovDistribution = this.setValue(currentDist, side, amount);
-            }
-            // if no side
-            else {
-                this.runtime.markovStrings = originalStrings;
-                this.runtime.markovDistribution = originalDistribution;
-            }
-            this.runtime.selectedDice = i;
-            this.runtime.dice[i].distribution = this.runtime.markovDistribution;
-            this.runtime.dice[i].strings = this.runtime.markovStrings;
-            let rolledState = this.pickRoll(i);
-            this.runtime.selectedState = rolledState;
-            this.runtime.dice[i].value = rolledState;
-            this.runtime.requestToolboxExtensionsUpdate();
-            return state;
         }
     }
 
@@ -912,7 +943,7 @@ class Scratch3ChanceBlocks {
         return -1;
     }
 
-    costumeSoundVal(args, util) {
+    /*costumeSoundVal(args, util) {
         switch (args.STARTERDICE) {
             case 'sound number':
                 return this.soundNumber
@@ -927,12 +958,12 @@ class Scratch3ChanceBlocks {
                 return this.costumeName;
                 break;
         }
-    }
+    }*/
 
-    // key pressed
+    /* // key pressed
     getKeyPressed() {
         return this.runtime.keyPressed;
-    }
+    }*/
 
 }
 
