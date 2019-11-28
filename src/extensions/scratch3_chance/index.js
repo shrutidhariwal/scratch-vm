@@ -642,7 +642,7 @@ class Scratch3ChanceBlocks {
             }
         }
         this.runtime.dice[i].value = newValue;
-        var regex = /\d{1,}to\d{1,}/g; // check if of format 0to20 etc.
+        var regex = /(-|)\d{1,}to(-|)\d{1,}/g // check if of format 0to20 etc.
         if (newValue.match(regex)) {
             const n1 = parseInt(newValue.split('to')[0]);
             const n2 = parseInt(newValue.split('to')[1]);
