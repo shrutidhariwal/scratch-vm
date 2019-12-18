@@ -80,6 +80,10 @@ const ArgumentTypeMap = (() => {
         shadowType: 'slider',
         fieldType: 'SLIDER'
     };
+    map[ArgumentType.MARKOV] = {
+        shadowType: 'markov',
+        fieldType: 'MARKOV'
+    };
     return map;
 })();
 

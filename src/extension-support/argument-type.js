@@ -41,7 +41,8 @@ const ArgumentType = {
     /**
      * Sliding bars represented by a list of numbers that add up to 100.
      */
-    SLIDER: 'slider'
+    SLIDER: 'slider',
+    MARKOV: 'markov'
 };
 
 module.exports = ArgumentType;
