@@ -491,7 +491,7 @@ class Scratch3ChanceBlocks {
             this.costumeChances.push(100.0 / costumes.length);
             this.costumeData.push(btoa(String.fromCharCode(...new Uint8Array(costumes[i].asset.data))))
         }
-        this.costumeSlider = `${this.costumeChances.toString()}|${this.costumeSides.join('~')}`;
+        this.costumeSlider = `${this.costumeChances.toString()}|${this.costumeSides.join('~')}|costume|${this.costumeData.join('~')}`;
 
         this.soundSides = [];
         this.soundChances = [];
@@ -502,7 +502,7 @@ class Scratch3ChanceBlocks {
             this.soundChances.push(100.0 / sounds.length);
             this.soundData.push(btoa(String.fromCharCode(...new Uint8Array(sounds[i].asset.data))))
         }
-        this.soundSlider = `${this.soundChances.toString()}|${this.soundSides.join('~')}`;
+        this.soundSlider = `${this.soundChances.toString()}|${this.soundSides.join('~')}|sound|${this.soundData.join('~')}`;
 
         // check for any dice updates
         if (this.runtime.dice.length > 2) {
