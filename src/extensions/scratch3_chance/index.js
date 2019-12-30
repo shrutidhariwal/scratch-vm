@@ -240,11 +240,15 @@ class Scratch3ChanceBlocks {
 
         if (this.runtime.dice.length > 2) {
             const dice = this.runtime.dice[this.runtime.selectedDice];
-            if(dice.diceType !== 'costume'){
-                this.runtime.sliderString = `${dice.distribution}|${dice.strings.join('~')}|${dice.diceType}`;
-            }
-            else{
-                this.runtime.sliderString = `${dice.distribution}|${dice.strings.join('~')}|${dice.diceType}|${this.costumeSvgData.join('~')}`;
+            switch(dice.diceType) {
+                case 'costume':
+                    this.runtime.sliderString = `${dice.distribution}|${dice.strings.join('~')}|${dice.diceType}|${this.costumeData.join('~')}`;
+                    break;
+                case 'sound':
+                    this.runtime.sliderString = `${dice.distribution}|${dice.strings.join('~')}|${dice.diceType}|${this.soundData.join('~')}`;
+                    break;
+                default:
+                    this.runtime.sliderString = `${dice.distribution}|${dice.strings.join('~')}|${dice.diceType}`;
             }
             this.runtime.markovSliderString = this.getMarkovSliderString();
 
@@ -480,21 +484,23 @@ class Scratch3ChanceBlocks {
         // starter blocks
         this.costumeSides = [];
         this.costumeChances = [];
-        this.costumeSvgData = [];
+        this.costumeData = [];
         const costumes = this.runtime.getEditingTarget().getCostumes();
         for (let i = 0; i < costumes.length; i++) {
             this.costumeSides.push(costumes[i].name);
             this.costumeChances.push(100.0 / costumes.length);
-            this.costumeSvgData.push(btoa(String.fromCharCode(...new Uint8Array(costumes[i].asset.data))))
+            this.costumeData.push(btoa(String.fromCharCode(...new Uint8Array(costumes[i].asset.data))))
         }
         this.costumeSlider = `${this.costumeChances.toString()}|${this.costumeSides.join('~')}`;
 
         this.soundSides = [];
         this.soundChances = [];
+        this.soundData = [];
         const sounds = this.runtime.getEditingTarget().getSounds();
         for (let i = 0; i < sounds.length; i++) {
             this.soundSides.push(sounds[i].name);
             this.soundChances.push(100.0 / sounds.length);
+            this.soundData.push(btoa(String.fromCharCode(...new Uint8Array(sounds[i].asset.data))))
         }
         this.soundSlider = `${this.soundChances.toString()}|${this.soundSides.join('~')}`;
 
@@ -507,7 +513,7 @@ class Scratch3ChanceBlocks {
                 }
                 if (this.runtime.dice[i].diceType === 'sound') {
                     this.runtime.dice[i].strings = this.soundSides;
-                    this.runtime.dice[i].distribution = this.soundChances.toString();
+                    //this.runtime.dice[i].distribution = this.soundChances.toString();
                 }
             }
         }
