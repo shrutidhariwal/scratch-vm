@@ -367,59 +367,6 @@ class Scratch3ChanceBlocks {
                 }
             },
 
-            '---',
-
-            // {
-            //     opcode: 'diceFromList',
-            //     blockType: BlockType.COMMAND,
-            //     text: 'set [DICE] from list [LISTARRAY]',
-            //     arguments: {
-            //         DICE: {
-            //             type: ArgumentType.STRING,
-            //             defaultValue: this.runtime.dice[this.runtime.selectedDice].diceName,
-            //             menu: 'diceMenu'
-            //         },
-            //         LISTARRAY: {
-            //             type: ArgumentType.STRING,
-            //             defaultValue: 'A A A B C'
-            //         }
-            //     }
-            // }
-            // ,
-            {
-                opcode: 'dataBlocks',
-                blockType: BlockType.BUTTON,
-                text: 'Markov Block'
-            },
-            {
-                opcode: 'createStateDice',
-                blockType: BlockType.REPORTER,
-                text: 'get next roll of [MARKOVDICE]',
-                arguments: {
-                    MARKOVDICE: {
-                        type: ArgumentType.STRING,
-                        defaultValue: this.runtime.dice[this.runtime.selectedDice].diceName,
-                        menu: 'diceMenu'
-                    }
-                }
-            },
-            {
-                opcode: 'setMarkovDistribution',
-                blockType: BlockType.COMMAND,
-                text: 'set [DICE] to [DISTRIBUTION]',
-                arguments: {
-                    DICE: {
-                        type: ArgumentType.STRING,
-                        defaultValue: this.runtime.dice[this.runtime.selectedDice].diceName,
-                        menu: 'diceOptionsMenu'
-                    },
-                    DISTRIBUTION: {
-                        type: ArgumentType.MARKOV,
-                        defaultValue: this.runtime.markovSliderString
-                    }
-                }
-            },
-
             {
                 opcode: 'diceFromList',
                 blockType: BlockType.COMMAND,
@@ -435,6 +382,13 @@ class Scratch3ChanceBlocks {
                         defaultValue: 'A A A B C'
                     }
                 }
+            },
+            '---',
+            {
+                opcode: 'showMarkovDice',
+                blockType: BlockType.BUTTON,
+                text: 'SEQUENCE DICE',
+                func: 'SHOW_MARKOV_DICE'
             }
                 /* ,
                 
@@ -444,6 +398,37 @@ class Scratch3ChanceBlocks {
                                     text: 'key pressed'
                                 }*/
             );
+            if (this.runtime.showMarkovDice){
+                this.blocks.push(
+                {
+                    opcode: 'createStateDice',
+                    blockType: BlockType.REPORTER,
+                    text: 'get next roll of [MARKOVDICE]',
+                    arguments: {
+                        MARKOVDICE: {
+                            type: ArgumentType.STRING,
+                            defaultValue: this.runtime.dice[this.runtime.selectedDice].diceName,
+                            menu: 'diceMenu'
+                        }
+                    }
+                },
+                {
+                    opcode: 'setMarkovDistribution',
+                    blockType: BlockType.COMMAND,
+                    text: 'set [DICE] to [DISTRIBUTION]',
+                    arguments: {
+                        DICE: {
+                            type: ArgumentType.STRING,
+                            defaultValue: this.runtime.dice[this.runtime.selectedDice].diceName,
+                            menu: 'diceOptionsMenu'
+                        },
+                        DISTRIBUTION: {
+                            type: ArgumentType.MARKOV,
+                            defaultValue: this.runtime.markovSliderString
+                        }
+                    }
+                })
+            }
         }
         /* if(this.runtime.markovDice){
             this.blocks.push(
@@ -478,8 +463,9 @@ class Scratch3ChanceBlocks {
         this.runtime.selectedSideVal['setChance'] = 0;
         this.runtime.selectedSideVal['changeChance'] = 0;
         this.runtime.selectedSideVal['chanceOfReporter'] = 0;
-
+        
         // markov
+        this.runtime.showMarkovDice = false;
 
         // modal
         this.runtime.modalDice = null;
