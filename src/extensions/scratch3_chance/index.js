@@ -653,8 +653,14 @@ class Scratch3ChanceBlocks {
         for (let k = 0; k < views.length; k++) {
             markovSliderArray.push([distributions[k], views[k]].join('|'));
         }
-        const markovSliderString = [markovSliderArray.join('||'), statesString, this.runtime.dice[i].diceType].join('|||');
-        return markovSliderString;
+        switch (this.runtime.dice[this.runtime.selectedDice].diceType) {
+            case 'costume':
+                return [markovSliderArray.join('||'), statesString, this.runtime.dice[i].diceType, this.costumeData.join('~')].join('|||');
+            case 'sound':
+                return [markovSliderArray.join('||'), statesString, this.runtime.dice[i].diceType, this.soundData.join('~')].join('|||');
+            default:
+                return [markovSliderArray.join('||'), statesString, this.runtime.dice[i].diceType].join('|||');
+        }
     }
 
     /* Block Definitions */
