@@ -378,7 +378,7 @@ class Scratch3ChanceBlocks {
                     },
                     LISTARRAY: {
                         type: ArgumentType.STRING,
-                        defaultValue: 'A A A B C'
+                        defaultValue: this.runtime.diceList
                     }
                 }
             },
@@ -388,19 +388,11 @@ class Scratch3ChanceBlocks {
                 blockType: BlockType.BUTTON,
                 text: 'SEQUENCE DICE',
                 func: 'SHOW_MARKOV_DICE'
-            }
-                /* ,
-                
-                                {
-                                    opcode: 'getKeyPressed',
-                                    blockType: BlockType.REPORTER,
-                                    text: 'key pressed'
-                                }*/
-            );
+            });
             if (this.runtime.showMarkovDice){
                 this.blocks.push(
                 {
-                    opcode: 'createStateDice',
+                    opcode: 'getNextRoll',
                     blockType: BlockType.REPORTER,
                     text: 'get next roll of [MARKOVDICE]',
                     arguments: {
@@ -429,29 +421,6 @@ class Scratch3ChanceBlocks {
                 })
             }
         }
-        /* if(this.runtime.markovDice){
-            this.blocks.push(
-                // Markov block
-                '---',
-                {
-                    opcode: 'dataBlocks',
-                    blockType: BlockType.BUTTON,
-                    text: 'Markov Block'
-                },
-
-                {
-                    opcode: 'createStateDice',
-                    blockType: BlockType.REPORTER,
-                    text: 'get next roll of [MARKOVDICE]',
-                    arguments: {
-                        MARKOVDICE: {
-                            type: ArgumentType.STRING,
-                            defaultValue: this.runtime.markovDice,
-                            menu: 'markovDiceMenu'
-                        }
-                    }
-                });
-        }*/
     }
 
     setDefaults () {
@@ -465,6 +434,7 @@ class Scratch3ChanceBlocks {
         
         // markov
         this.runtime.showMarkovDice = false;
+        this.runtime.diceList = 'A A A B C';
 
         // modal
         this.runtime.modalDice = null;
@@ -874,6 +844,7 @@ class Scratch3ChanceBlocks {
                 alert('No input provided.');
             } else {
                 const listVal = args.LISTARRAY.toString();
+                this.runtime.diceList = listVal;
                 let markovSequence = '';
                 if (listVal.includes(' ')) {
                     markovSequence = listVal.split(' ');
@@ -894,11 +865,8 @@ class Scratch3ChanceBlocks {
                 this.runtime.dice[i].distribution = frequency.map(item => ((item / sum) * 100)).join();
                 this.runtime.dice[i].strings = Object.keys(stateFreqDist);
                 this.runtime.markovDistribution = this.runtime.dice[i].distribution;
-                //this.runtime.markovStrings = '';
                 this.runtime.originalDistribution = this.runtime.dice[i].distribution;
                 const originalStrings = this.runtime.dice[i].strings;
-                // this.runtime.markovDice = args.DICE.toString();
-                // this.runtime.selectedState = this.pickRoll(i, false);
                 this.runtime.selectedDice = i;
 
                 const markovDistribution = {};
@@ -976,7 +944,7 @@ class Scratch3ChanceBlocks {
 
     // markov learning
 
-    createStateDice (args) {
+    getNextRoll (args) {
         const i = this.getDiceIndex(args.MARKOVDICE.toString());
         if (i > -1) {
             const state = this.runtime.dice[i].value;
@@ -986,7 +954,7 @@ class Scratch3ChanceBlocks {
                 const rolledState = this.pickRoll(i, true);
                 this.runtime.dice[i].value = rolledState;
                 this.runtime.requestToolboxExtensionsUpdate();
-                return state;
+                return rolledState;
             }
         }
     }
