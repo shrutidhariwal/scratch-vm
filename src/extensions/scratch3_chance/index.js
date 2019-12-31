@@ -651,9 +651,10 @@ class Scratch3ChanceBlocks {
         const statesString = this.runtime.dice[i].strings.join('~');
         const markovSliderArray = [];
         for (let k = 0; k < views.length; k++) {
-            markovSliderArray.push([distributions[k], statesString, views[k]].join('|'));
+            markovSliderArray.push([distributions[k], views[k]].join('|'));
         }
-        return markovSliderArray.join('||');
+        const markovSliderString = [markovSliderArray.join('||'), statesString, this.runtime.dice[i].diceType].join('|||');
+        return markovSliderString;
     }
 
     /* Block Definitions */
@@ -764,10 +765,10 @@ class Scratch3ChanceBlocks {
             this.runtime.selectedDice = 2;
             this.runtime.requestToolboxExtensionsUpdate();
         } else if (i > -1) {
-            const marokvStrings = args.DISTRIBUTION.split('||');
+            const marokvStrings = args.DISTRIBUTION.split('|||')[0].split('||');
             for (let k = 0; k < marokvStrings.length; k++) {
                 const splitted = marokvStrings[k].split('|');
-                this.runtime.dice[i].markovDistribution[splitted[2]] = splitted[0];
+                this.runtime.dice[i].markovDistribution[splitted[1]] = splitted[0];
             }
             this.runtime.selectedDice = i;
             this.runtime.dice[i].distribution = this.runtime.dice[i].markovDistribution['~'];
