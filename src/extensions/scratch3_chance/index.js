@@ -239,17 +239,7 @@ class Scratch3ChanceBlocks {
         });
 
         if (this.runtime.dice.length > 2) {
-            const dice = this.runtime.dice[this.runtime.selectedDice];
-            switch(dice.diceType) {
-                case 'costume':
-                    this.runtime.sliderString = `${dice.distribution}|${dice.strings.join('~')}|${dice.diceType}|${this.costumeData.join('~')}`;
-                    break;
-                case 'sound':
-                    this.runtime.sliderString = `${dice.distribution}|${dice.strings.join('~')}|${dice.diceType}|${this.soundData.join('~')}`;
-                    break;
-                default:
-                    this.runtime.sliderString = `${dice.distribution}|${dice.strings.join('~')}|${dice.diceType}`;
-            }
+            this.runtime.sliderString = this.getSliderString();
             this.runtime.markovSliderString = this.getMarkovSliderString();
 
             this.blocks.push({
@@ -555,7 +545,7 @@ class Scratch3ChanceBlocks {
             chances.push(100.0 / numberOfSides);
         }
         this.runtime.dice[lastDice].distribution = chances.toString();
-        this.runtime.dice[lastDice].markovDistribution['#basic'] = chances.toString();
+        this.runtime.dice[lastDice].markovDistribution['~'] = chances.toString();
         for (let k = 0; k < numberOfSides; k++) {
             this.runtime.dice[lastDice].markovDistribution[this.runtime.dice[lastDice].strings[k]] = chances.toString();
         }
@@ -640,6 +630,18 @@ class Scratch3ChanceBlocks {
     getSideIndex (diceIndex, sideName) {
         const index = this.runtime.dice[diceIndex].strings.findIndex(item => item === sideName);
         return index;
+    }
+
+    getSliderString() {
+        const dice = this.runtime.dice[this.runtime.selectedDice];
+        switch (dice.diceType) {
+            case 'costume':
+                return `${dice.distribution}|${dice.strings.join('~')}|${dice.diceType}|${this.costumeData.join('~')}`;
+            case 'sound':
+                return `${dice.distribution}|${dice.strings.join('~')}|${dice.diceType}|${this.soundData.join('~')}`;
+            default:
+                return `${dice.distribution}|${dice.strings.join('~')}|${dice.diceType}`;
+        }
     }
 
     getMarkovSliderString () {
@@ -729,7 +731,7 @@ class Scratch3ChanceBlocks {
             const distribution = splitted[0];
             this.runtime.dice[i].strings = splitted[1].split('~');
             this.runtime.dice[i].distribution = distribution;
-            this.runtime.dice[i].markovDistribution['#basic'] = distribution;
+            this.runtime.dice[i].markovDistribution['~'] = distribution;
             this.runtime.selectedDice = i;
             this.runtime.requestToolboxExtensionsUpdate();
         }
@@ -746,7 +748,7 @@ class Scratch3ChanceBlocks {
         }
         distribution = distribution.join();
         const newDist = {};
-        newDist['#basic'] = splitted[0];
+        newDist['~'] = splitted[0];
         for (let k = 0; k < strings.length; k++) {
             newDist[strings[k]] = distribution;
         }
@@ -768,7 +770,7 @@ class Scratch3ChanceBlocks {
                 this.runtime.dice[i].markovDistribution[splitted[2]] = splitted[0];
             }
             this.runtime.selectedDice = i;
-            this.runtime.dice[i].distribution = this.runtime.dice[i].markovDistribution['#basic'];
+            this.runtime.dice[i].distribution = this.runtime.dice[i].markovDistribution['~'];
             this.runtime.requestToolboxExtensionsUpdate();
         }
     }
@@ -953,7 +955,7 @@ class Scratch3ChanceBlocks {
                         markovDistribution[state] = this.runtime.markovDistribution;
                     }
                 }
-                markovDistribution['#basic'] = this.runtime.originalDistribution;
+                markovDistribution['~'] = this.runtime.originalDistribution;
                 this.runtime.dice[this.runtime.selectedDice].markovDistribution = markovDistribution;
                 this.runtime.dice[this.runtime.selectedDice].value = originalStrings[0];
                 this.runtime.dice[i].distribution = this.runtime.markovDistribution;
