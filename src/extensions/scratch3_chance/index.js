@@ -369,7 +369,7 @@ class Scratch3ChanceBlocks {
             {
                 opcode: 'diceFromList',
                 blockType: BlockType.COMMAND,
-                text: 'set [DICE] from list [LISTARRAY]',
+                text: 'set [DICE] sequence from list [LISTARRAY]',
                 arguments: {
                     DICE: {
                         type: ArgumentType.STRING,
@@ -394,7 +394,7 @@ class Scratch3ChanceBlocks {
                 {
                     opcode: 'getNextRoll',
                     blockType: BlockType.REPORTER,
-                    text: 'get next roll of [MARKOVDICE]',
+                    text: 'roll from sequence [MARKOVDICE]',
                     arguments: {
                         MARKOVDICE: {
                             type: ArgumentType.STRING,
@@ -406,7 +406,7 @@ class Scratch3ChanceBlocks {
                 {
                     opcode: 'setMarkovDistribution',
                     blockType: BlockType.COMMAND,
-                    text: 'set [DICE] to [DISTRIBUTION]',
+                    text: 'set [DICE] sequence to [DISTRIBUTION]',
                     arguments: {
                         DICE: {
                             type: ArgumentType.STRING,
