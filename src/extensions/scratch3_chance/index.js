@@ -449,7 +449,10 @@ class Scratch3ChanceBlocks {
         for (let i = 0; i < costumes.length; i++) {
             this.costumeSides.push(costumes[i].name);
             this.costumeChances.push(100.0 / costumes.length);
-            this.costumeData.push(btoa(String.fromCharCode(...new Uint8Array(costumes[i].asset.data))))
+            this.costumeData.push(btoa(
+                new Uint8Array(costumes[i].asset.data)
+                    .reduce((data, byte) => data + String.fromCharCode(byte), '')
+            ));
         }
         this.costumeSlider = `${this.costumeChances.toString()}|${this.costumeSides.join('~')}|costume|${this.costumeData.join('~')}`;
 
@@ -460,7 +463,10 @@ class Scratch3ChanceBlocks {
         for (let i = 0; i < sounds.length; i++) {
             this.soundSides.push(sounds[i].name);
             this.soundChances.push(100.0 / sounds.length);
-            this.soundData.push(btoa(String.fromCharCode(...new Uint8Array(sounds[i].asset.data))))
+            this.soundData.push(btoa(
+                new Uint8Array(sounds[i].asset.data)
+                    .reduce((data, byte) => data + String.fromCharCode(byte), '')
+            ));
         }
         this.soundSlider = `${this.soundChances.toString()}|${this.soundSides.join('~')}|sound|${this.soundData.join('~')}`;
 
