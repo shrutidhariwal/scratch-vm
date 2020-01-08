@@ -394,7 +394,7 @@ class Scratch3ChanceBlocks {
                 {
                     opcode: 'getNextRoll',
                     blockType: BlockType.REPORTER,
-                    text: 'roll from sequence [MARKOVDICE]',
+                    text: 'next roll in [MARKOVDICE] sequence',
                     arguments: {
                         MARKOVDICE: {
                             type: ArgumentType.STRING,
@@ -406,7 +406,7 @@ class Scratch3ChanceBlocks {
                 {
                     opcode: 'setMarkovDistribution',
                     blockType: BlockType.COMMAND,
-                    text: 'set [DICE] sequence to [DISTRIBUTION]',
+                    text: 'set [DICE] next roll to [DISTRIBUTION]',
                     arguments: {
                         DICE: {
                             type: ArgumentType.STRING,
