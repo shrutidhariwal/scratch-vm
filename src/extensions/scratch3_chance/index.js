@@ -526,8 +526,6 @@ class Scratch3ChanceBlocks {
             this.runtime.dice[lastDice].markovDistribution[this.runtime.dice[lastDice].strings[k]] = chances.toString();
         }
         this.runtime.selectedDice = this.getDiceIndex(this.runtime.dice[lastDice].diceName);
-        this.runtime.diceToChange = this.runtime.dice[lastDice].diceName;
-        //this.runtime.markovDice = this.runtime.diceToChange;
         this.runtime.requestToolboxExtensionsUpdate();
     }
 
@@ -564,12 +562,62 @@ class Scratch3ChanceBlocks {
 
     // Set dice block menu with rename/delete option
     getDiceOptionsMenu () {
+        var that = this;
         const diceOptionItems = [];
+
         for (let i = this.runtime.dice.length - 1; i > 1; i--) {
-            diceOptionItems.push(this.runtime.dice[i].diceName);
+            diceOptionItems.push({text: this.runtime.dice[i].diceName, value: changeDice});
+
+            function changeDice(){
+                that.runtime.selectedDice = i;
+                that.runtime.requestToolboxExtensionsUpdate();
+            }
         }
-        this.runtime.diceToChange = this.runtime.dice[this.runtime.selectedDice].diceName;
-        diceOptionItems.push(`Delete "${this.runtime.diceToChange}"`);
+
+        var diceToDelete = this.runtime.dice[this.runtime.selectedDice].diceName;
+        diceOptionItems.push({text: `Delete "${diceToDelete}"`, value: deleteDice});
+
+        function deleteDice(){
+            if (that.runtime.targets) {
+                var allBlocks = [];
+                for (let i = 0; i < that.runtime.targets.length; i++) {
+                    allBlocks.push(that.runtime.targets[i].sprite.blocks._blocks);
+                }
+                var BlockIDsToDelete = []
+                for (let i = 0; i < allBlocks.length; i++) {
+                    for (const keys in allBlocks[i]) {
+                        console.log(allBlocks[i][keys].opcode)
+                        switch (allBlocks[i][keys].opcode){
+                            case 'chance_menu_diceMenu':
+                                var diceName = allBlocks[i][keys].fields.diceMenu.value.toString();
+                                if (diceName === diceToDelete) {
+                                    BlockIDsToDelete.push(allBlocks[i][keys].parent);
+                                }
+                                else if (that.runtime.dice.length == 3){
+                                    BlockIDsToDelete.push(allBlocks[i][keys].parent);
+                                }
+                                break;
+                            case "chance_setDistribution":
+                            case "chance_setMarkovDistribution":
+                                console.log('here', allBlocks[i][keys].fields.DICE.value.toString())
+                                var diceName = allBlocks[i][keys].fields.DICE.value.toString();
+                                if (diceName === diceToDelete) {
+                                    BlockIDsToDelete.push(keys);
+                                }
+                                else if (that.runtime.dice.length == 3){
+                                    BlockIDsToDelete.push(allBlocks[i][keys].parent);
+                                }
+                                break;
+                        }
+                    }
+                }
+                that.runtime.emit('DELETE_DICE', BlockIDsToDelete);
+                that.runtime.dice.splice(that.getDiceIndex(diceToDelete), 1);
+                that.runtime.selectedDice = 2;
+                that.runtime.requestToolboxExtensionsUpdate();
+            }
+        }
+
         return diceOptionItems;
     }
 
@@ -700,13 +748,8 @@ class Scratch3ChanceBlocks {
     // To set the distribution of dice
     setDistribution (args) {
         const diceName = args.DICE.toString();
-        const deleteDice = `Delete "${this.runtime.diceToChange}"`;
         const i = this.getDiceIndex(diceName);
-        if (diceName === deleteDice) {
-            this.runtime.dice.splice(this.getDiceIndex(this.runtime.diceToChange), 1);
-            this.runtime.selectedDice = 2;
-            this.runtime.requestToolboxExtensionsUpdate();
-        } else if (i > -1) {
+        if (i > -1) {
             const splitted = args.DISTRIBUTION.split('|');
             if (this.runtime.dice[i].strings.join('~') !== splitted[1]) {
                 this.resetMarkovDistribution(args);
@@ -740,13 +783,8 @@ class Scratch3ChanceBlocks {
 
     setMarkovDistribution (args) {
         const diceName = args.DICE.toString();
-        const deleteDice = `Delete "${this.runtime.diceToChange}"`;
         const i = this.getDiceIndex(diceName);
-        if (diceName === deleteDice) {
-            this.runtime.dice.splice(this.getDiceIndex(this.runtime.diceToChange), 1);
-            this.runtime.selectedDice = 2;
-            this.runtime.requestToolboxExtensionsUpdate();
-        } else if (i > -1) {
+        if (i > -1) {
             const marokvStrings = args.DISTRIBUTION.split('|||')[0].split('||');
             for (let k = 0; k < marokvStrings.length; k++) {
                 const splitted = marokvStrings[k].split('|');
