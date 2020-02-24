@@ -914,9 +914,7 @@ class Scratch3ChanceBlocks {
                 } else {
                     markovSequence = listVal.split('').join(' ').split(' ');
                 }
-                //to circle back to first side after the last in markov
-                markovSequence.push(markovSequence[0]); 
-
+                
                 this.runtime.dice[i].strings = markovSequence.filter((item, i, ar) => ar.indexOf(item) === i);
 
                 const stateFreqDist = {};
