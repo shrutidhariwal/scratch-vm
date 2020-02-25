@@ -48,14 +48,13 @@ class Scratch3ChanceBlocks {
                     blocksLoaded.push(this.runtime.targets[i].sprite.blocks._blocks);
                 }
                 for (let i = 0; i < blocksLoaded.length; i++) {
-                    console.log("keys: ", blocksLoaded[i]);
                     for (const keys in blocksLoaded[i]) {
                         if (blocksLoaded[i][keys].opcode === 'chance_setDistribution') {
                             const newDice = blocksLoaded[i][keys].fields.DICE.value.toString();
                                 if(!newDice.includes('-seq')) {
                                    if (!newDiceAdded.includes(newDice)) {
                                         newDiceAdded.push(newDice);
-                                } 
+                               } 
                                 }
                                 
                         }
@@ -88,7 +87,6 @@ class Scratch3ChanceBlocks {
 
         this.runtime.on('PROJECT_CHANGED', () => {
             //this.resetToUniform(this.runtime.selectedDice);
-            console.log("project changed");
             this.runtime.dice[this.runtime.selectedDice].value = this.pickRoll(this.runtime.selectedDice, false);
             this.runtime.requestToolboxExtensionsUpdate();
         });
@@ -778,21 +776,24 @@ class Scratch3ChanceBlocks {
     setDistribution(args) {
         const diceName = args.DICE.toString();
         const i = this.getDiceIndex(diceName);
+        let flag = 0;
         if (i > -1) {
             const splitted = args.DISTRIBUTION.split('|');
             if (this.runtime.dice[i].strings.join('~') !== splitted[1]) {
-                this.startMarkovDistribution(i);
+                flag = 1;
             }
             const distribution = splitted[0];
             this.runtime.dice[i].strings = splitted[1].split('~');
             this.runtime.dice[i].distribution = distribution;
+            if(flag)
+                this.startMarkovDistribution(i);
             this.runtime.dice[i].markovDistribution['~'] = distribution;
             this.runtime.selectedDice = i;
             this.runtime.requestToolboxExtensionsUpdate();
         }
     }
 
-    /*resetMarkovDistribution (args) {
+   /* resetMarkovDistribution (args) {
         const i = this.getDiceIndex(args.DICE.toString());
         const splitted = args.DISTRIBUTION.split('|');
         const strings = splitted[1].split('~');
