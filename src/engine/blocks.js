@@ -590,6 +590,23 @@ class Blocks {
                 // Changing the value in a dropdown
                 block.fields[args.name].value = args.value;
 
+                // For Lets Chance extension
+                // The slider field in the 'set dice to' block needs to update based on the dice selected in the menu.
+                if (block.opcode === 'chance_setDistribution') {
+                    const diceField = block.fields.DICE.value;
+                    if (this.runtime.dice.findIndex(item => item.diceName === diceField) > -1) {
+                        this.runtime.selectedDice = this.runtime.dice.findIndex(item => item.diceName === diceField);
+                        this.runtime.requestToolboxExtensionsUpdate(); // update runtime slider string based on dice selected
+                        
+                        // if block is in workspace, update slider field manually
+                        if (block.id !== 'chance_setDistribution') {
+                            const sliderID = Object.keys(this._blocks).filter(blockId => this.getBlock(blockId).parent === block.id);
+                            this._blocks[sliderID].fields.SLIDER.value = this.runtime.sliderString;
+                            this.runtime.requestBlocksUpdate();
+                        }
+                    } 
+                }
+
                 // The selected item in the sensing of block menu needs to change based on the
                 // selected target.  Set it to the first item in the menu list.
                 // TODO: (#1787)

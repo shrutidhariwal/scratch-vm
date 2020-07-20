@@ -577,18 +577,15 @@ class Scratch3ChanceBlocks {
 
     // Set dice block menu with rename/delete option
     getDiceOptionsMenu() {
-        var that = this;
+
+        // code for dynamically updating fields is in src/engine/blocks.js
         const diceOptionItems = [];
-
         for (let i = this.runtime.dice.length - 1; i > 1; i--) {
-            diceOptionItems.push({ text: this.runtime.dice[i].diceName, value: changeDice });
-
-            function changeDice() {
-                that.runtime.selectedDice = i;
-                that.runtime.requestToolboxExtensionsUpdate();
-            }
+            diceOptionItems.push(this.runtime.dice[i].diceName);
         }
 
+        // delete dice functionality
+        var that = this;
         var diceToDelete = this.runtime.dice[this.runtime.selectedDice].diceName;
         diceOptionItems.push({ text: `Delete "${diceToDelete}"`, value: deleteDice });
 
